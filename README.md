@@ -3,7 +3,7 @@ Environment for container-based application. Inspired by GCP Cloud Run. Availabl
 
 ## This project includes 3 repositories
 
-- msr-ansible: Ansible Playbook to install components needed for an MSR cluster
+- [msr-ansible](https://github.com/bowber/msr-ansible): Ansible Playbook to install components needed for an MSR cluster
 - msr-dashboard: Frontend for MSR users
 - msr-controller: Gateway handles requests from the dashboard
 
