@@ -9,7 +9,13 @@ function App() {
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name: name() }));
+    setGreetMsg(await invoke("calculated_greet", { name: name() }));
+    const start = Date.now();
+    let sum = 0;
+    for (let i = 0; i < 100_000_000; i++) {
+      sum = i;
+    }
+    console.log(`Time taken: ${Date.now() - start}ms`);
   }
 
   return (
