@@ -1,6 +1,7 @@
-import { createSignal } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import { TitleBar } from "./components/title-bar";
+import { appWindow } from "@tauri-apps/api/window"
 
 function App() {
   const [greetMsg, setGreetMsg] = createSignal("");
@@ -10,6 +11,10 @@ function App() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     setGreetMsg(await invoke("check_k0sctl", { name: name() }));
   }
+
+  onMount(() => {
+    appWindow.setFocus();
+  });
 
   return (
     <>
