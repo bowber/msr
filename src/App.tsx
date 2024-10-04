@@ -1,48 +1,26 @@
-import { createSignal, onMount } from "solid-js";
-import { invoke } from "@tauri-apps/api/tauri";
+import { onMount } from "solid-js";
 import { TitleBar } from "./components/title-bar";
 import { appWindow } from "@tauri-apps/api/window"
+import { isMaximized } from "./components/contexts/ui-controller";
+import clsx from "clsx";
+import { Toaster } from "solid-toast";
+
+
 
 function App() {
-  const [greetMsg, setGreetMsg] = createSignal("");
-  const [name, setName] = createSignal("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("check_k0sctl", { name: name() }));
-  }
-
+  // Don't put this outside of the component if u don't want it focus whenever you makes any changes to this file
   onMount(() => {
     appWindow.setFocus();
   });
 
   return (
-    <>
+    <div class={clsx(
+      "w-full h-svh overflow-hidden bg-primary-100 dark:invert",
+      isMaximized() == false && "rounded-md"
+    )} >
       <TitleBar />
-      <div class="container">
-
-        <h1>Welcome to Tauri!</h1>
-
-        <p>Click on the Tauri, Vite, and Solid logos to learn more.</p>
-
-        <form
-          class="row"
-          onSubmit={(e) => {
-            e.preventDefault();
-            greet();
-          }}
-        >
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button type="submit">Greet</button>
-        </form>
-
-        <p>{greetMsg()}</p>
-      </div>
-    </>
+      <Toaster containerClassName="mt-7" />
+    </ div>
   );
 }
 

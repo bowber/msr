@@ -468,6 +468,18 @@
   resolved "https://registry.yarnpkg.com/@solidjs/router/-/router-0.14.7.tgz#08a53f47ba13c5e4439f434281d33da3fca6809b"
   integrity sha512-agLf8AUz5XnW6+F64a4Iq+QQQobI5zGHQ/gUYd/WHSwcbnFpavbsiwRLob3YhWMXVX3sQyn4ekUN+uchMCRupw==
 
+"@tabler/icons-solidjs@^3.19.0":
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons-solidjs/-/icons-solidjs-3.19.0.tgz#24b1e199615b5f2d3d57ee052b7d3e4d786e5cc7"
+  integrity sha512-wtYft78GxbQvLu/I6XAqBdXGmLsw/oDnniL9/BcFmSQLthtqLEZiq3V7dwF924U364cc/NysTXoWbQMRR45uCA==
+  dependencies:
+    "@tabler/icons" "3.19.0"
+
+"@tabler/icons@3.19.0":
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-3.19.0.tgz#5998b0557ef34572e003f2d75ac95e7c04f88c81"
+  integrity sha512-A4WEWqpdbTfnpFEtwXqwAe9qf9sp1yRPvzppqAuwcoF0q5YInqB+JkJtSFToCyBpPVeLxJUxxkapLvt2qQgnag==
+
 "@tanstack/query-core@5.59.0":
   version "5.59.0"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.59.0.tgz#d8323f1c6eb0e573ab0aa85a7b7690d0c263818a"
@@ -1592,6 +1604,11 @@ solid-refresh@^0.6.3:
     "@babel/generator" "^7.23.6"
     "@babel/helper-module-imports" "^7.22.15"
     "@babel/types" "^7.23.6"
+
+solid-toast@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/solid-toast/-/solid-toast-0.5.0.tgz#ed31363aad38434a67c1da1c423fd1492460c6ba"
+  integrity sha512-t770JakjyS2P9b8Qa1zMLOD51KYKWXbTAyJePVUoYex5c5FH5S/HtUBUbZAWFcqRCKmAE8KhyIiCvDZA8bOnxQ==
 
 source-map-js@^1.2.1:
   version "1.2.1"

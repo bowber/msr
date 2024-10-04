@@ -18,11 +18,11 @@ export const BaseButton: Component<BaseButtonProps> = (props) => {
     <button
       {...props}
       class={clsx(
-        !props.disabled && "hover:opacity-90 active:opacity-100 pointer-events-auto",
+        !props.disabled && "hover:invert active:contrast-0 pointer-events-auto",
         props.scaleOnClick && "active:scale-90",
         props.class
       )}
-      onClick={throttle(handleClick, props.throttleDelay ?? 1000)}
+      onClick={throttle(handleClick, props.throttleDelay ?? 100)}
     >
       {props.children}
     </button>
