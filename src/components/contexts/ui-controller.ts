@@ -4,12 +4,14 @@ import { appWindow } from "@tauri-apps/api/window"
 export const [isMaximized, setIsMaximized] = createSignal(false);
 
 
-const eHandlers = Promise.all([appWindow.onResized(async () => {
+const eHandlers = Promise.all([
+  appWindow.onResized(async () => {
     setIsMaximized(await appWindow.isMaximized());
-  })]);
+}),
+]);
 
-  onCleanup(() => {
+onCleanup(() => {
     eHandlers.then((handlers) => {
       handlers.forEach((handler) => handler());
     });
-  });
+});

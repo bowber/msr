@@ -15,7 +15,7 @@ function App() {
 
   return (
     <div class={clsx(
-      "w-full h-svh overflow-hidden bg-primary-100 dark:invert",
+      "w-full h-svh overflow-hidden bg-primary-100",
       isMaximized() == false && "rounded-md"
     )} >
       <TitleBar />
