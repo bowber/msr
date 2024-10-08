@@ -1,6 +1,6 @@
 # Mini Services Runner (MSR)
 
-Environment for container-based application. Inspired by GCP Cloud Run. Available to run as a single-node or multi-node cluster for High Availability.  
+Tools to setup environment for container-based application. Inspired by GCP Cloud Run. Available to run as a single-node or multi-node cluster for High Availability.  
 This project includes a single app that provides tools to help quickly set up, manage, and maintain an MSR Cluster alongside the services.
 
 ## This project is based on these primary components
