@@ -186,6 +186,23 @@
     "@babel/helper-validator-identifier" "^7.24.7"
     to-fast-properties "^2.0.0"
 
+"@corvu/tooltip@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@corvu/tooltip/-/tooltip-0.2.1.tgz#73345ac29fc437f39e6dcec72a42a195cd1083b3"
+  integrity sha512-y2CQ2/6DH/gJJZPo1fV3O7l4Jfgu5ZW58bpqPmKS+l8Pa6gIKV6zkrMoyBg8Hsn6z9RmdZFqkGFs/9C5fvwKpg==
+  dependencies:
+    "@corvu/utils" "~0.4.0"
+    "@floating-ui/dom" "^1.6.8"
+    solid-dismissible "~0.1.0"
+    solid-presence "~0.1.8"
+
+"@corvu/utils@~0.4.0", "@corvu/utils@~0.4.1":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@corvu/utils/-/utils-0.4.2.tgz#ae867221297fd1e362efe41f081c42d7c746ff61"
+  integrity sha512-Ox2kYyxy7NoXdKWdHeDEjZxClwzO4SKM8plAaVwmAJPxHMqA0rLOoAsa+hBDwRLpctf+ZRnAd/ykguuJidnaTA==
+  dependencies:
+    "@floating-ui/dom" "^1.6.11"
+
 "@esbuild/aix-ppc64@0.21.5":
   version "0.21.5"
   resolved "https://registry.yarnpkg.com/@esbuild/aix-ppc64/-/aix-ppc64-0.21.5.tgz#c7184a326533fcdf1b8ee0733e21c713b975575f"
@@ -300,6 +317,26 @@
   version "0.21.5"
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.21.5.tgz#acad351d582d157bb145535db2a6ff53dd514b5c"
   integrity sha512-tQd/1efJuzPC6rCFwEvLtci/xNFcTZknmXs98FYDfGE4wP9ClFV98nyKrzJKVPMhdDnjzLhdUyMX4PsQAPjwIw==
+
+"@floating-ui/core@^1.6.0":
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.6.8.tgz#aa43561be075815879305965020f492cdb43da12"
+  integrity sha512-7XJ9cPU+yI2QeLS+FCSlqNFZJq8arvswefkZrYI1yQBbftw6FyrZOxYSh+9S7z7TpeWlRt9zJ5IhM1WIL334jA==
+  dependencies:
+    "@floating-ui/utils" "^0.2.8"
+
+"@floating-ui/dom@^1.6.11", "@floating-ui/dom@^1.6.8":
+  version "1.6.11"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.6.11.tgz#8631857838d34ee5712339eb7cbdfb8ad34da723"
+  integrity sha512-qkMCxSR24v2vGkhYDo/UzxfJN3D4syqSjyuTFz6C7XcpU1pASPRieNI0Kj5VP3/503mOfYiGY891ugBX1GlABQ==
+  dependencies:
+    "@floating-ui/core" "^1.6.0"
+    "@floating-ui/utils" "^0.2.8"
+
+"@floating-ui/utils@^0.2.8":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.8.tgz#21a907684723bbbaa5f0974cf7730bd797eb8e62"
+  integrity sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==
 
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
@@ -462,6 +499,18 @@
   version "0.27.8"
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
   integrity sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==
+
+"@solid-primitives/storage@^4.2.1":
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/storage/-/storage-4.2.1.tgz#8d6f5bebf81d5fd3d852e9eebe9445f95e90ed42"
+  integrity sha512-1XUJeaSlizH9Eam/+IbIpslHEnggJMNZXzfsr06AlbG6tJtQENMu0+94ZIvooxt4Cyw46wPzcnHYbSK7LzoQAA==
+  dependencies:
+    "@solid-primitives/utils" "^6.2.3"
+
+"@solid-primitives/utils@^6.2.3":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/utils/-/utils-6.2.3.tgz#1abed4c74a2696e08bd2e49cf2b86fc8b87a32bd"
+  integrity sha512-CqAwKb2T5Vi72+rhebSsqNZ9o67buYRdEJrIFzRXz3U59QqezuuxPsyzTSVCacwS5Pf109VRsgCJQoxKRoECZQ==
 
 "@solidjs/router@^0.14.7":
   version "0.14.7"
@@ -1587,6 +1636,13 @@ signal-exit@^4.0.1:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-4.1.0.tgz#952188c1cbd546070e2dd20d0f41c0ae0530cb04"
   integrity sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==
 
+solid-dismissible@~0.1.0:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/solid-dismissible/-/solid-dismissible-0.1.1.tgz#32de43d22f03c863bfc2e08094bbb1bd77313c3b"
+  integrity sha512-9kcKBJIMdS+586cA1g63HYWxKh3h89leeNHbPZ1csYjuni+NvPBtNr11l0iEX2AKKEt6FHk6qNhc/gjoYAW1pA==
+  dependencies:
+    "@corvu/utils" "~0.4.1"
+
 solid-js@^1.7.8:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/solid-js/-/solid-js-1.9.1.tgz#ac5e0b53451a5770599bc8fff570928b3cffabd7"
@@ -1595,6 +1651,13 @@ solid-js@^1.7.8:
     csstype "^3.1.0"
     seroval "^1.1.0"
     seroval-plugins "^1.1.0"
+
+solid-presence@~0.1.8:
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/solid-presence/-/solid-presence-0.1.8.tgz#c8713c7d52122b128d22fc1c0afdb08b0fb93d07"
+  integrity sha512-pWGtXUFWYYUZNbg5YpG5vkQJyOtzn2KXhxYaMx/4I+lylTLYkITOLevaCwMRN+liCVk0pqB6EayLWojNqBFECA==
+  dependencies:
+    "@corvu/utils" "~0.4.0"
 
 solid-refresh@^0.6.3:
   version "0.6.3"

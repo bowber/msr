@@ -4,6 +4,8 @@ import { appWindow } from "@tauri-apps/api/window"
 import { isMaximized } from "./components/contexts/ui-controller";
 import clsx from "clsx";
 import { Toaster } from "solid-toast";
+import { Sidebar } from "./components/sidebar";
+import { AppRouter } from "./components/routes";
 
 
 
@@ -19,6 +21,10 @@ function App() {
       isMaximized() == false && "rounded-md"
     )} >
       <TitleBar />
+      <div class="relative h-[fill-available] flex">
+        <Sidebar />
+        <AppRouter />
+      </div>
       <Toaster containerClassName="mt-7" />
     </ div>
   );

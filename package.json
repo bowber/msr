@@ -12,6 +12,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@corvu/tooltip": "^0.2.1",
+    "@solid-primitives/storage": "^4.2.1",
     "@solidjs/router": "^0.14.7",
     "@tabler/icons-solidjs": "^3.19.0",
     "@tanstack/solid-query": "^5.59.0",
