@@ -9,6 +9,7 @@ fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
     let arch = std::env::consts::ARCH;
     let mapped_os = match os {
         "windows" => "win",
+        "linux" => "linux",
         "macos" => "darwin",
         _ => panic!("Unsupported OS: {}", os),
     };

@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod k0sctl;
+#[cfg(windows)]
 use std::os::windows::process::CommandExt;
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -14,11 +15,7 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn check_k0sctl(name: &str) -> Result<String, String> {
-    let output = match std::process::Command::new("bin/k0sctl")
-        .arg(name)
-        .creation_flags(CREATE_NO_WINDOW)
-        .output()
-    {
+    let output = match std::process::Command::new("bin/k0sctl").arg(name).output() {
         Ok(output) => output,
         Err(e) => return Err(e.to_string()),
     };
