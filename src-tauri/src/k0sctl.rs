@@ -1,10 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-#[cfg(target_os = "windows")]
-const K0SCTL_BIN_PATH: &str = "bin/k0sctl.exe";
-#[cfg(not(target_os = "windows"))]
-const K0SCTL_BIN_PATH: &str = "bin/k0sctl";
-
 #[derive(Serialize, Deserialize)]
 pub enum HostRole {
     Controller,

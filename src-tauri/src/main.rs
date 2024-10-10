@@ -3,7 +3,6 @@
 mod k0sctl;
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
-const CREATE_NO_WINDOW: u32 = 0x08000000;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
