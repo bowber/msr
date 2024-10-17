@@ -7,7 +7,10 @@ import toast from "solid-toast"
 
 export const TitleBar = () => {
   return (
-    <div data-tauri-drag-region class="w-full h-10 flex justify-end bg-primary-500">
+    <div
+      data-tauri-drag-region
+      class="w-full h-10 flex justify-end bg-primary-500"
+    >
       <a class="h-full aspect-square pl-2" href="/">
         <img
           src="/logo.png"

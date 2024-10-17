@@ -5,6 +5,9 @@ import "./index.css";
 import { ClusterProvider } from "./components/contexts/clusters";
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
+import RelativeTime from "dayjs/plugin/relativeTime"
+import dayjs from "dayjs";
+dayjs.extend(RelativeTime);
 
 const queryClient = new QueryClient({
   defaultOptions: {
