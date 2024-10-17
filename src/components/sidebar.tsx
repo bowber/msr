@@ -1,7 +1,7 @@
 export const Sidebar = () => {
   return (
     <div
-      class="w-12 h-full bg-primary-200"
+      class="w-12 h-svh bg-primary-200 border-r-1 border-primary-300"
     >
       {/* Handle */}
       <div class="flex flex-col pace-y-1 items-center justify-center ">
