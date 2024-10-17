@@ -23,7 +23,7 @@ export default {
     },
     extend: {
       colors: {
-        'primary': {
+        primary: {
           100: '#fff4e7',
           200: '#f3e8da',
           300: '#e1cfb9',
@@ -33,7 +33,10 @@ export default {
           700: '#b48954',
           800: '#9e7644',
           900: '#8e683a',
-        }
+        },
+      },
+      spacing: {
+        'fill-available': 'fill-available',
       },
       screens: {
         xs: '375px',
@@ -55,7 +58,7 @@ export default {
         },
       },
       fontFamily: {
-        'poppins': ['Poppins', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
       },
     },
   },
