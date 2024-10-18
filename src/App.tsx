@@ -1,11 +1,7 @@
 import { onCleanup, onMount } from "solid-js";
-import { TitleBar } from "./components/title-bar";
 import { appWindow } from "@tauri-apps/api/window"
-import { isMaximized, setIsMaximized } from "./components/contexts/ui-controller";
-import clsx from "clsx";
-import { Toaster } from "solid-toast";
-import { Sidebar } from "./components/sidebar";
-import { AppRouter } from "./components/routes";
+import { setIsMaximized } from "./contexts/ui-controller";
+import { AppRouter } from "./routes";
 
 
 

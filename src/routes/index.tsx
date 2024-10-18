@@ -1,11 +1,5 @@
 import { Router } from "@solidjs/router"
-import { Clusters } from "./clusters"
-import { children } from "solid-js/types/server/reactive.js"
-import clsx from "clsx"
-import { Toaster } from "solid-toast"
-import { isMaximized } from "../contexts/ui-controller"
-import { Sidebar } from "../sidebar"
-import { TitleBar } from "../title-bar"
+import { ClustersPage } from "./clusters-page"
 import { MainLayout } from "./main-layout"
 
 const routes = [
@@ -15,12 +9,12 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => <Clusters />,
+        component: () => <ClustersPage />,
       },
       {
         path: "*",
         component: () => <h1 class="p-4">
-          <a href="/">404 Go back</a>
+          <div onClick={() => window.history.back()}>404 Go back</div>
         </h1>
       }
     ]

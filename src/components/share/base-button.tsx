@@ -18,7 +18,7 @@ export const BaseButton: Component<BaseButtonProps> = (props) => {
     <button
       {...props}
       class={clsx(
-        !props.disabled && "hover:contrast-0 active:contrast-50 pointer-events-auto",
+        !props.disabled && "hover:contrast-75 active:contrast-125 pointer-events-auto",
         props.scaleOnClick && "active:scale-90",
         props.class
       )}

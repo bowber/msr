@@ -2,7 +2,7 @@
 import { render } from "solid-js/web";
 import App from "./App";
 import "./index.css";
-import { ClusterProvider } from "./components/contexts/clusters";
+import { ClusterProvider } from "./contexts/clusters";
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
 import RelativeTime from "dayjs/plugin/relativeTime"

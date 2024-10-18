@@ -43,7 +43,7 @@ export default {
         '2xs': '350px',
       },
       animation: {
-        'zoom-in': 'zoom-in 0.3s ease-in-out',
+        'fade-in': 'fade-in 0.1s ease-in-out',
       },
       boxShadow: {
         button:
@@ -52,9 +52,9 @@ export default {
           '0 var(--tw-shadow-y-offset, 0.5rem) 0 -0.1rem var(--tw-shadow-color)',
       },
       keyframes: {
-        'zoom-in': {
-          '0%': { transform: 'scale(0)' },
-          '100%': { transform: 'scale(1)' },
+        'fade-in': {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
         },
       },
       fontFamily: {
