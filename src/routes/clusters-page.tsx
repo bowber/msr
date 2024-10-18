@@ -22,8 +22,8 @@ export const ClustersPage = () => {
         </a>
       </div>
       <br />
-      <div class="p-1 rounded bg-primary-900 w-fill-available">
-        <div class="overflow-y-auto space-y-1 h-[calc(100vh-9rem)]">
+      <div class="p-1 rounded bg-primary-900 w-full">
+        <div class="overflow-y-auto space-y-1 max-h-[calc(100vh-9rem)]">
           <For each={fakeData}>
             {(cluster) => (
               <ClusterDisplay cluster={cluster} />
