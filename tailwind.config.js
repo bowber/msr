@@ -44,6 +44,8 @@ export default {
       },
       animation: {
         'fade-in': 'fade-in 0.1s ease-in-out',
+        'zoom-in': 'zoom-in 0.1s ease-in-out',
+        'move-in-r': 'move-in-r var(--tw-anim-duration, 0.2s) ease-in-out',
       },
       boxShadow: {
         button:
@@ -55,6 +57,14 @@ export default {
         'fade-in': {
           '0%': { opacity: 0 },
           '100%': { opacity: 1 },
+        },
+        'zoom-in': {
+          '0%': { transform: 'scale(0)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'move-in-r': {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
         },
       },
       fontFamily: {

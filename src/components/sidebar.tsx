@@ -5,7 +5,7 @@ import { createEffect } from "solid-js";
 export const Sidebar = () => {
   return (
     <div
-      class="w-12 h-svh bg-primary-200 border-r-1 border-primary-300"
+      class="w-12 h-svh bg-primary-200 border-r-1 border-primary-300 z-10"
     >
       {/* Handle */}
       <div class="flex flex-col items-end justify-start ">

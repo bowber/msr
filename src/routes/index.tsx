@@ -2,6 +2,7 @@ import { Router } from "@solidjs/router"
 import { ClustersPage } from "./clusters-page"
 import { MainLayout } from "./main-layout"
 import { HostsPage } from "./hosts-page"
+import { ServicesPage } from "./services-page"
 
 const routes = [
   {
@@ -15,6 +16,10 @@ const routes = [
       {
         path: "hosts",
         component: () => <HostsPage />,
+      },
+      {
+        path: "services",
+        component: ServicesPage,
       },
       {
         path: "*",

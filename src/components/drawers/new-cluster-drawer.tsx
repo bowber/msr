@@ -1,31 +1,32 @@
-import { useLocation } from "@solidjs/router";
-import { Modal } from "../share/modal"
 import { BaseButton } from "../share/base-button";
 import { For } from "solid-js";
+import { isShowNewClusterForm, setShowNewClusterForm } from "../../contexts/ui-controller";
+import { Drawer } from "../share/drawer";
+import { Button } from "../share/button";
+import { Input } from "../share/input";
 
-export const NewClusterModal = () => {
-  const location = useLocation();
+export const NewClusterDrawer = () => {
   return (
-    <Modal
-      isOpen={location.hash === "#new"}
-      onClose={() => window.history.back()}
+    <Drawer
+      isOpen={isShowNewClusterForm()}
+      onClose={() => setShowNewClusterForm(false)}
     >
-      <div class="bg-white w-full h-full rounded-lg p-4 overflow-y-auto relative">
+      <div class="bg-primary-200 w-fill-available h-fill-available p-4 overflow-y-auto relative">
         <h3>New Cluster</h3>
 
         <p class="mt-2">Name</p>
-        <input type="text" class="w-full border-2 p-1 rounded-lg" />
+        <Input type="text" class="w-full" />
 
         <p class="mt-2">Hosts</p>
-        <BaseButton class="w-full border-2 p-1 rounded-lg" >
+        <Button class="w-full" variant="secondary" >
           + Add host
-        </BaseButton>
+        </Button>
         <HostsList />
-        <BaseButton class="sticky bg-primary-900 text-white bottom-0 border-2 px-2 py-1 mt-4 rounded-lg">
+        <Button class="sticky mt-4 bottom-0">
           Create
-        </BaseButton>
+        </Button>
       </div>
-    </Modal>
+    </Drawer>
   )
 }
 

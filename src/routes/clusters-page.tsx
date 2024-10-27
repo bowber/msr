@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import { For, Show } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
 import { useCluster } from "../contexts/clusters";
-import { NewClusterModal } from "../components/modals/new-cluster-modal";
+import { setShowNewClusterForm } from "../contexts/ui-controller";
 
 export const ClustersPage = () => {
   return (
@@ -15,11 +15,12 @@ export const ClustersPage = () => {
             alt="refresh"
           />
         </BaseButton>
-        <a href="/#new" class="ml-auto text-primary-900">
-          <BaseButton>
-            Create Cluster
-          </BaseButton>
-        </a>
+        <BaseButton
+          class="ml-auto text-primary-900"
+          onClick={() => setShowNewClusterForm(true)}
+        >
+          Create Cluster
+        </BaseButton>
       </div>
       <br />
       <div class="p-1 rounded bg-primary-900 w-full">
@@ -31,7 +32,6 @@ export const ClustersPage = () => {
           </For>
         </div>
       </div>
-      <NewClusterModal />
     </div>
   );
 }
