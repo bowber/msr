@@ -1,13 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod commands;
-mod k0sctl;
+mod data;
 mod paths;
+
+use data::k0sctl;
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-
 fn main() {
     tauri::Builder::default()
         .setup(setup)
@@ -41,6 +42,7 @@ fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     // TODO: Remove and only run this after the app is ready (check for updates or some actions like login)
     // TODO: Alongside with other checks
     k0sctl::download_k0sctl_binary()?;
+    data::setup::get_db_connection();
 
     Ok(())
 }
