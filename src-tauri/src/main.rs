@@ -4,7 +4,7 @@ mod commands;
 mod data;
 mod paths;
 
-use data::k0sctl;
+use data::k0s;
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
@@ -12,7 +12,8 @@ use std::os::windows::process::CommandExt;
 fn main() {
     tauri::Builder::default()
         .setup(setup)
-        .invoke_handler(tauri::generate_handler![commands::clusters::get_clusters])
+        .invoke_handler(tauri::generate_handler![commands::clusters::get_hosts])
+        .invoke_handler(tauri::generate_handler![commands::setup::setup])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -38,11 +39,5 @@ fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         paths::K0SCTL_BINARY_PATH.get().unwrap()
     );
     println!("SQLITE_PATH: {:?}", paths::SQLITE_PATH.get().unwrap());
-
-    // TODO: Remove and only run this after the app is ready (check for updates or some actions like login)
-    // TODO: Alongside with other checks
-    k0sctl::download_k0sctl_binary()?;
-    data::setup::get_db_connection();
-
     Ok(())
 }

@@ -1,4 +1,7 @@
+use crate::data::{errors::DataError, k0s::Host};
+use tauri::async_runtime::Mutex;
+
 #[tauri::command]
-pub async fn get_clusters() -> Result<String, String> {
-    Ok("ok".to_string())
+pub async fn get_hosts() -> Result<Vec<Host>, DataError> {
+    Ok(crate::data::k0s::get_hosts().await?)
 }

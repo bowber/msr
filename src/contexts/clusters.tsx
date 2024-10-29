@@ -1,10 +1,10 @@
 import { createQuery, CreateQueryResult } from "@tanstack/solid-query";
 import { Accessor, createContext, createSignal, ParentComponent, Setter, useContext } from "solid-js";
-import { get_clusters } from "../commands/clusters";
 import { makePersisted } from "@solid-primitives/storage";
+import { getHosts } from "../commands/clusters";
 
 type ClusterContextType = {
-  clusters: CreateQueryResult<Awaited<ReturnType<typeof get_clusters>>>
+  clusters: CreateQueryResult<Awaited<ReturnType<typeof getHosts>>>
   defaultCluster: Accessor<string | undefined>
   setDefaultCluster: Setter<string | undefined>
 }
@@ -24,8 +24,8 @@ export const ClusterProvider: ParentComponent = (props) => {
     { name: "defaultCluster" }
   )
   const clusters = createQuery(() => ({
-    queryKey: ["clusters"],
-    queryFn: get_clusters
+    queryKey: ["hosts"],
+    queryFn: getHosts
   }))
 
   return (

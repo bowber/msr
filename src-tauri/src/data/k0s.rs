@@ -2,29 +2,49 @@ use std::os::unix::fs::PermissionsExt;
 
 use serde::{Deserialize, Serialize};
 
+use super::{errors::DataError, setup::get_db_connection};
+
 const K0SCTL_VERSION: &str = "v0.19.0";
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, sqlx::Type)]
 pub enum HostRole {
     Controller,
     Worker,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct Host {
+    pub id: i32,
     pub address: String,
-    pub user: String,
+    pub ssh_user: String,
     pub ssh_key_path: String,
     pub role: HostRole,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct K0SInitParams {
     pub cluster_name: String,
     pub hosts: Vec<Host>,
 }
 
-pub fn init_k0s_cluster(opt: K0SInitParams) -> Result<(), String> {
+#[derive(Debug)]
+pub enum StatusTypes {
+    Running,
+    Stopped,
+    Error,
+}
+
+// trait Status {
+//     async fn status(&self) -> Result<(), StatusTypes>;
+// }
+
+// impl Status for Host {
+//     async fn status(&self) -> Result<(), StatusTypes> {
+//         // SSH into the host and check the status of the host
+//     }
+// }
+
+pub async fn init_k0s_cluster(opt: K0SInitParams) -> Result<(), String> {
     Ok(())
 }
 
@@ -79,4 +99,17 @@ pub fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
     }
     std::fs::set_permissions(filepath, std::fs::Permissions::from_mode(0o755))?;
     Ok(())
+}
+
+pub async fn get_hosts() -> Result<Vec<Host>, DataError> {
+    let pool = get_db_connection().await?;
+    let hosts = sqlx::query_as::<_, Host>(
+        r#"
+        SELECT id FROM hosts
+        "#,
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|_| DataError::ReadError)?;
+    Ok(hosts)
 }
