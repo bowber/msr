@@ -1,7 +1,5 @@
-use std::env;
-
 use super::errors::DataError;
-use super::k0s::Host;
+use super::k0s::create_hosts_table;
 use sqlx;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::sqlite::SqlitePool;
@@ -34,30 +32,6 @@ pub async fn get_db_connection() -> Result<&'static SqlitePool, DataError> {
 }
 
 pub async fn try_init_db() -> Result<(), DataError> {
-    // CREATE TABLE IF NOT EXISTS
-    let pool = get_db_connection().await?;
-    // pub struct Host {
-    //     pub id: i32,
-    //     pub name: String,
-    //     pub address: String,
-    //     pub ssh_user: String,
-    //     pub ssh_key_path: String,
-    //     pub role: HostRole,
-    // }
-    let result = sqlx::query(
-        r#"
-        CREATE TABLE IF NOT EXISTS hosts (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            address TEXT NOT NULL,
-            ssh_user TEXT NOT NULL,
-            ssh_key_path TEXT NOT NULL,
-            role INTEGER NOT NULL
-        )
-        "#,
-    )
-    .execute(pool)
-    .await
-    .map_err(|_| DataError::InitDatabaseError)?;
+    create_hosts_table().await?;
     Ok(())
 }

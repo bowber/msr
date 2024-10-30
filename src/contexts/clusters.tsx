@@ -1,10 +1,11 @@
 import { createQuery, CreateQueryResult } from "@tanstack/solid-query";
-import { Accessor, createContext, createSignal, ParentComponent, Setter, useContext } from "solid-js";
+import { Accessor, createContext, createEffect, createSignal, ParentComponent, Setter, useContext } from "solid-js";
 import { makePersisted } from "@solid-primitives/storage";
-import { getHosts } from "../commands/clusters";
+import { getClusters } from "../commands/clusters";
+import { useTauri } from "./tauri";
 
 type ClusterContextType = {
-  clusters: CreateQueryResult<Awaited<ReturnType<typeof getHosts>>>
+  clusters: CreateQueryResult<Awaited<ReturnType<typeof getClusters>>>
   defaultCluster: Accessor<string | undefined>
   setDefaultCluster: Setter<string | undefined>
 }
@@ -19,13 +20,15 @@ export const useCluster = () => {
 }
 
 export const ClusterProvider: ParentComponent = (props) => {
+  const tauri = useTauri()
   const [defaultCluster, setDefaultCluster] = makePersisted(
     createSignal<string>(),
     { name: "defaultCluster" }
   )
   const clusters = createQuery(() => ({
-    queryKey: ["hosts"],
-    queryFn: getHosts
+    queryKey: ["cluster"],
+    queryFn: getClusters,
+    enabled: tauri.tauriSetup.status === 'success'
   }))
 
   return (

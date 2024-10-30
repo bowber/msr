@@ -7,4 +7,9 @@ pub enum DataError {
     InitDatabaseError,
     ReadError,
     K0sctlDownloadError,
+    InitTableError,
+    AlterTableError,
+    InsertError,
+    DeleteError,
+    UpdateError,
 }

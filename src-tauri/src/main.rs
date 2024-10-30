@@ -4,16 +4,20 @@ mod commands;
 mod data;
 mod paths;
 
-use data::k0s;
-
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 fn main() {
     tauri::Builder::default()
         .setup(setup)
-        .invoke_handler(tauri::generate_handler![commands::clusters::get_hosts])
-        .invoke_handler(tauri::generate_handler![commands::setup::setup])
+        .invoke_handler(tauri::generate_handler![
+            commands::setup::setup,
+            commands::hosts::get_hosts,
+            commands::hosts::add_host,
+            commands::hosts::delete_host,
+            commands::hosts::update_host,
+            commands::clusters::get_clusters,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

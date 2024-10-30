@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import { JSX } from "solid-js"
 
-export interface SelectProps extends JSX.HTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends JSX.SelectHTMLAttributes<HTMLSelectElement> {
   options: string[]
   defaultValue?: string
   format?: (option: string) => JSX.Element
