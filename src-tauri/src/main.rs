@@ -6,9 +6,12 @@ mod paths;
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
+
+use tauri::Manager;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .setup(setup)
         .invoke_handler(tauri::generate_handler![
             commands::setup::setup,
@@ -23,7 +26,7 @@ fn main() {
 }
 
 fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let app_data_path = app.handle().path_resolver().app_data_dir().unwrap();
+    let app_data_path = app.handle().path().app_data_dir().unwrap();
     paths::APP_DATA_PATH.set(app_data_path.clone())?;
     let ext;
     #[cfg(windows)]

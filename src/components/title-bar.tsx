@@ -1,9 +1,10 @@
 import { IconMaximize, IconMinimize, IconMinus, IconX } from "@tabler/icons-solidjs"
 import { BaseButton } from "./share/base-button"
-import { appWindow } from '@tauri-apps/api/window'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { Show } from "solid-js"
 import { isMaximized } from "../contexts/ui-controller"
 import toast from "solid-toast"
+const appWindow = getCurrentWebviewWindow()
 
 export const TitleBar = () => {
   return (
