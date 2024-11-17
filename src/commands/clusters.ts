@@ -1,6 +1,7 @@
-import { invoke } from '@tauri-apps/api'
+
+import { invoke } from '@tauri-apps/api/core'
 import { z } from 'zod'
 
-export const get_clusters = async () => {
-  return await invoke('get_clusters').then(z.string().parse)
+export const getClusters = async () => {
+  return await invoke('get_clusters').then(z.array(z.any()).parse)
 }

@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
 import RelativeTime from "dayjs/plugin/relativeTime"
 import dayjs from "dayjs";
 import { HostsProvider } from "./contexts/hosts";
+import { TauriProvider } from "./contexts/tauri";
 dayjs.extend(RelativeTime);
 
 const queryClient = new QueryClient({
@@ -20,11 +21,13 @@ const queryClient = new QueryClient({
 
 render(() => (
   <QueryClientProvider client={queryClient}>
-    <ClusterProvider>
-      <HostsProvider>
-        <SolidQueryDevtools />
-        <App />
-      </HostsProvider>
-    </ClusterProvider>
+    <TauriProvider>
+      <ClusterProvider>
+        <HostsProvider>
+          <SolidQueryDevtools />
+          <App />
+        </HostsProvider>
+      </ClusterProvider>
+    </TauriProvider>
   </QueryClientProvider>
 ), document.getElementById("root") as HTMLElement);

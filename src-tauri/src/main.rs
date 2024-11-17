@@ -1,23 +1,32 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod commands;
-mod k0sctl;
+mod data;
 mod paths;
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
+use tauri::Manager;
+// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .setup(setup)
-        .invoke_handler(tauri::generate_handler![commands::clusters::get_clusters])
+        .invoke_handler(tauri::generate_handler![
+            commands::setup::setup,
+            commands::hosts::get_hosts,
+            commands::hosts::add_host,
+            commands::hosts::delete_host,
+            commands::hosts::update_host,
+            commands::clusters::get_clusters,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
 fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let app_data_path = app.handle().path_resolver().app_data_dir().unwrap();
+    let app_data_path = app.handle().path().app_data_dir().unwrap();
     paths::APP_DATA_PATH.set(app_data_path.clone())?;
     let ext;
     #[cfg(windows)]
@@ -37,10 +46,5 @@ fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         paths::K0SCTL_BINARY_PATH.get().unwrap()
     );
     println!("SQLITE_PATH: {:?}", paths::SQLITE_PATH.get().unwrap());
-
-    // TODO: Remove and only run this after the app is ready (check for updates or some actions like login)
-    // TODO: Alongside with other checks
-    k0sctl::download_k0sctl_binary()?;
-
     Ok(())
 }

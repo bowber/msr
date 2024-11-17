@@ -1,7 +1,8 @@
 import { onCleanup, onMount } from "solid-js";
-import { appWindow } from "@tauri-apps/api/window"
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow"
 import { setIsMaximized } from "./contexts/ui-controller";
 import { AppRouter } from "./routes";
+const appWindow = getCurrentWebviewWindow()
 
 
 
