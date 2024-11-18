@@ -4,8 +4,8 @@ mod commands;
 mod data;
 mod paths;
 
-#[cfg(windows)]
-use std::os::windows::process::CommandExt;
+// #[cfg(windows)]
+// use std::os::windows::process::CommandExt;
 
 use tauri::Manager;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command

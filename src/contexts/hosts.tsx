@@ -23,6 +23,7 @@ export const HostsProvider: ParentComponent = (props) => {
     queryFn: getHosts,
     enabled: tauri.tauriSetup.status === 'success'
   }))
+  
   return (
     <HostsContext.Provider value={{
       hosts

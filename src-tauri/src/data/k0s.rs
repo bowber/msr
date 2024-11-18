@@ -48,12 +48,12 @@ pub struct K0SInitParams {
     pub hosts: Vec<Host>,
 }
 
-#[derive(Debug)]
-pub enum StatusTypes {
-    Running,
-    Stopped,
-    Error,
-}
+// #[derive(Debug)]
+// pub enum StatusTypes {
+//     Running,
+//     Stopped,
+//     Error,
+// }
 
 // trait Status {
 //     async fn status(&self) -> Result<(), StatusTypes>;
@@ -65,9 +65,9 @@ pub enum StatusTypes {
 //     }
 // }
 
-pub async fn init_k0s_cluster(opt: K0SInitParams) -> Result<(), String> {
-    Ok(())
-}
+// pub async fn init_k0s_cluster(opt: K0SInitParams) -> Result<(), String> {
+//     Ok(())
+// }
 
 pub fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
     let os = std::env::consts::OS;
@@ -155,14 +155,20 @@ pub async fn get_hosts() -> Result<Vec<Host>, DataError> {
     let hosts = sqlx::query_as::<_, Host>(
         r#"
         SELECT 
-            id, address, name, ssh_user, ssh_key_path, ssh_password, role
+            id, address, name, ssh_user, ssh_key_path, ssh_password
         FROM hosts
         "#,
     )
     .fetch_all(pool)
-    .await
-    .map_err(|_| DataError::ReadError)?;
-    Ok(hosts)
+    .await;
+
+    match hosts {
+        Ok(hosts) => Ok(hosts),
+        Err(e) => {
+            eprintln!("Error getting hosts: {:?}", e);
+            return Err(DataError::ReadError);
+        }
+    }
 }
 
 pub async fn add_host(host: CreateHost) -> Result<(), DataError> {

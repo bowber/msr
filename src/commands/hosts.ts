@@ -2,7 +2,9 @@ import { invoke } from '@tauri-apps/api/core'
 import { z } from 'zod'
 
 export const getHosts = async () => {
-  return await invoke('get_hosts').then(z.array(hostSchema).parse)
+  const hosts = await invoke('get_hosts')
+  console.debug('Original hosts: ', hosts)
+  return z.array(hostSchema).parse(hosts)
 }
 
 const hostSchema = z.object({
