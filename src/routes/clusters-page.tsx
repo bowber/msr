@@ -2,9 +2,10 @@ import dayjs from "dayjs";
 import { For, Show } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
 import { useCluster } from "../contexts/clusters";
-import { setShowNewClusterForm } from "../contexts/ui-controller";
+import { useUIController } from "../contexts/ui-controller";
 
 export const ClustersPage = () => {
+  const { setShowNewClusterForm } = useUIController();
   return (
     <div class="p-4 w-fill-available h-fill-available  relative">
       <div class="flex">

@@ -9,6 +9,7 @@ import RelativeTime from "dayjs/plugin/relativeTime"
 import dayjs from "dayjs";
 import { HostsProvider } from "./contexts/hosts";
 import { TauriProvider } from "./contexts/tauri";
+import { UIControllerProvider } from "./contexts/ui-controller";
 dayjs.extend(RelativeTime);
 
 const queryClient = new QueryClient({
@@ -21,13 +22,15 @@ const queryClient = new QueryClient({
 
 render(() => (
   <QueryClientProvider client={queryClient}>
-    <TauriProvider>
-      <ClusterProvider>
-        <HostsProvider>
-          <SolidQueryDevtools />
-          <App />
-        </HostsProvider>
-      </ClusterProvider>
-    </TauriProvider>
+    <UIControllerProvider>
+      <TauriProvider>
+        <ClusterProvider>
+          <HostsProvider>
+            <SolidQueryDevtools />
+            <App />
+          </HostsProvider>
+        </ClusterProvider>
+      </TauriProvider>
+    </UIControllerProvider>
   </QueryClientProvider>
 ), document.getElementById("root") as HTMLElement);

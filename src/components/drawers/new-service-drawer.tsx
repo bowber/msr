@@ -1,4 +1,4 @@
-import { isShowNewServiceForm, setShowNewServiceForm } from "../../contexts/ui-controller";
+import { useUIController } from "../../contexts/ui-controller";
 import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
 import { Input } from "../share/input";
@@ -6,6 +6,7 @@ import { Select } from "../share/select";
 import { CPUOptions, RAMOptions } from "../../utils/service";
 
 export const NewServiceDrawer = () => {
+  const { isShowNewServiceForm, setShowNewServiceForm } = useUIController()
   return (
     <Drawer
       isOpen={isShowNewServiceForm()}

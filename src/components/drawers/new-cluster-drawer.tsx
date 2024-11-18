@@ -1,11 +1,12 @@
 import { BaseButton } from "../share/base-button";
 import { For } from "solid-js";
-import { isShowNewClusterForm, setShowNewClusterForm } from "../../contexts/ui-controller";
+import { useUIController } from "../../contexts/ui-controller";
 import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
 import { Input } from "../share/input";
 
 export const NewClusterDrawer = () => {
+  const { isShowNewClusterForm, setShowNewClusterForm } = useUIController()
   return (
     <Drawer
       isOpen={isShowNewClusterForm()}

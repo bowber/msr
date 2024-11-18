@@ -2,11 +2,12 @@ import { IconMaximize, IconMinimize, IconMinus, IconX } from "@tabler/icons-soli
 import { BaseButton } from "./share/base-button"
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { Show } from "solid-js"
-import { isMaximized } from "../contexts/ui-controller"
+import { useUIController } from "../contexts/ui-controller"
 import toast from "solid-toast"
 const appWindow = getCurrentWebviewWindow()
 
 export const TitleBar = () => {
+  const {isMaximized} = useUIController()
   return (
     <div
       data-tauri-drag-region

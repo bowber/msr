@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import { createEffect, ParentComponent } from "solid-js"
 import { Toaster } from "solid-toast"
-import { isMaximized } from "../contexts/ui-controller"
+import { useUIController } from "../contexts/ui-controller"
 import { Sidebar } from "../components/sidebar"
 import { TitleBar } from "../components/title-bar"
 import { useLocation } from "@solidjs/router"
@@ -10,6 +10,7 @@ import { NewClusterDrawer } from "../components/drawers/new-cluster-drawer"
 import { NewServiceDrawer } from "../components/drawers/new-service-drawer"
 
 export const MainLayout: ParentComponent = (props) => {
+  const { isMaximized } = useUIController()
   const location = useLocation()
   createEffect(() => {
     console.debug("Current location: ", location)

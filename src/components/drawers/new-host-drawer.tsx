@@ -1,4 +1,4 @@
-import { isShowNewHostForm, setShowNewHostForm } from "../../contexts/ui-controller";
+import { useUIController } from "../../contexts/ui-controller";
 import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
 import { Input } from "../share/input";
@@ -7,6 +7,7 @@ import { addHost } from "../../commands/hosts";
 import toast from "solid-toast";
 
 export const NewHostDrawer = () => {
+  const { isShowNewHostForm, setShowNewHostForm } = useUIController()
   const handleSubmit = (e: Event) => {
     e.preventDefault()
     const target = e.target as HTMLFormElement

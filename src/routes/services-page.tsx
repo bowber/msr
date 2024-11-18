@@ -1,9 +1,10 @@
 import dayjs from "dayjs";
 import { For } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
-import { setShowNewServiceForm } from "../contexts/ui-controller";
+import { useUIController } from "../contexts/ui-controller";
 
 export const ServicesPage = () => {
+  const { setShowNewServiceForm } = useUIController();
   return (
     <div class="p-4 w-fill-available h-fill-available  relative">
       <div class="flex">
