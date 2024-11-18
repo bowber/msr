@@ -1,3 +1,4 @@
+#[cfg(unix)]
 use std::{os::unix::fs::PermissionsExt, result};
 
 use serde::{Deserialize, Serialize};
@@ -117,6 +118,7 @@ pub fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
             String::from_utf8_lossy(&output.stderr)
         );
     }
+    #[cfg(unix)]
     std::fs::set_permissions(filepath, std::fs::Permissions::from_mode(0o755))?;
     Ok(())
 }
