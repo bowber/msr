@@ -9,9 +9,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": [
-      "icons/logo.png"
-    ]
+    "icon": ["icons/logo.png"]
   },
   "productName": "tauri-app",
   "mainBinaryName": "tauri-app",
