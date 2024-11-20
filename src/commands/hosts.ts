@@ -13,7 +13,7 @@ const hostSchema = z.object({
   address: z.string(),
   ssh_user: z.string(),
   ssh_key_path: z.string().optional(),
-  ssh_password: z.string().optional(),
+  ssh_password: z.string().nullable(),
 })
 
 export type Host = z.infer<typeof hostSchema>
