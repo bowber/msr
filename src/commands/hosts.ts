@@ -1,5 +1,8 @@
 import { invoke } from '@tauri-apps/api/core'
+import dayjs from 'dayjs'
 import { z } from 'zod'
+
+const dateFromArraySchema = z.number().transform((v) => dayjs(v * 1000))
 
 export const getHosts = async () => {
   const hosts = await invoke('get_hosts')
@@ -14,6 +17,8 @@ const hostSchema = z.object({
   ssh_user: z.string(),
   ssh_key_path: z.string().optional(),
   ssh_password: z.string().nullable(),
+  updated_at: dateFromArraySchema,
+  created_at: dateFromArraySchema,
 })
 
 export type Host = z.infer<typeof hostSchema>

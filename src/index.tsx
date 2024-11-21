@@ -6,11 +6,13 @@ import { ClusterProvider } from "./contexts/clusters";
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
 import RelativeTime from "dayjs/plugin/relativeTime"
+import ArraySupport from "dayjs/plugin/arraySupport"
 import dayjs from "dayjs";
 import { HostsProvider } from "./contexts/hosts";
 import { TauriProvider } from "./contexts/tauri";
 import { UIControllerProvider } from "./contexts/ui-controller";
 dayjs.extend(RelativeTime);
+dayjs.extend(ArraySupport)
 
 const queryClient = new QueryClient({
   defaultOptions: {

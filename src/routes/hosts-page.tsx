@@ -2,9 +2,12 @@ import dayjs from "dayjs";
 import { For } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
 import { useUIController } from "../contexts/ui-controller";
+import { useHosts } from "../contexts/hosts";
+import { Host } from "../commands/hosts";
 
 export const HostsPage = () => {
   const { setShowNewHostForm } = useUIController();
+  const hostsContext = useHosts();
   return (
     <div class="p-4 w-fill-available h-fill-available  relative">
       <div class="flex">
@@ -25,9 +28,9 @@ export const HostsPage = () => {
       <br />
       <div class="p-1 rounded bg-primary-900 w-full">
         <div class="overflow-y-auto space-y-1 max-h-[calc(100vh-9rem)]">
-          <For each={fakeData}>
+          <For each={hostsContext.hosts.data}>
             {(hosts) => (
-              <HostsDisplay Hosts={hosts} />
+              <HostsDisplay hosts={hosts} />
             )}
           </For>
         </div>
@@ -36,25 +39,25 @@ export const HostsPage = () => {
   );
 }
 
-const HostsDisplay = (props: { Hosts: typeof fakeData[0] }) => {
+const HostsDisplay = (props: { hosts: Host }) => {
   return (
     <div class="bg-primary-100 p-2 first:rounded-t last:rounded-b">
       <div class="flex items center justify-start">
         {/* Col 1 */}
         <div class="flex flex-col">
-          <h4>{props.Hosts.name}</h4>
-          <span class="mt-auto">Updated: <b>{dayjs(props.Hosts.updatedAt).fromNow()}</b></span>
-          <span>Created: <b>{dayjs(props.Hosts.createdAt).fromNow()}</b></span>
-          <span>Cluster: <b>{props.Hosts.cluster}</b></span>
+          <h4>{props.hosts.name}</h4>
+          <span class="mt-auto">Updated: <b>{dayjs(props.hosts.updated_at).fromNow()}</b></span>
+          <span>Created: <b>{dayjs(props.hosts.created_at).fromNow()}</b></span>
+          <span>Cluster: <b>{"NULL"}</b></span>
         </div>
 
         {/* Col 2 */}
         <div class="ml-4 flex flex-col">
-          <span>Status: <b class="text-green-400">{props.Hosts.status}</b></span>
-          <span>Type: <b>{props.Hosts.type}</b></span>
-          <span>Pods:  <b>{props.Hosts.totalPods}</b></span>
-          <span>CPU ult: <b>{props.Hosts.usedCPUs}/{props.Hosts.totalCPUs}</b></span>
-          <span>RAM usage: <b>{props.Hosts.usedRAM}/{props.Hosts.totalRAM} GiB</b></span>
+          <span>Status: <b class="text-green-400">{"NULL"}</b></span>
+          <span>Type: <b>{"NULL"}</b></span>
+          <span>Pods:  <b>{"NULL"}</b></span>
+          <span>CPU ult: <b>{"NULL"}/{"NULL"}</b></span>
+          <span>RAM usage: <b>{"NULL"}/{"NULL"} GiB</b></span>
         </div>
         {/* Col 3 */}
         <div class="ml-auto flex self-center">
@@ -76,95 +79,3 @@ const HostsDisplay = (props: { Hosts: typeof fakeData[0] }) => {
     </div >
   );
 }
-const fakeData = [
-  {
-    id: "1",
-    name: 'Host1',
-    updatedAt: '2021-10-10',
-    createdAt: '2021-10-10',
-    cluster: 'SupaClusta',
-    type: 'controller',
-    status: 'Healthy',
-    hostIP: '192.168.1.1',
-    totalPods: 10,
-    totalCPUs: 200,
-    usedCPUs: 7,
-    totalRAM: 32,
-    usedRAM: 0.9,
-  },
-  {
-    id: "2",
-    name: 'Host2',
-    updatedAt: '2021-10-10',
-    createdAt: '2021-10-10',
-    cluster: 'SupaClusta',
-    type: 'worker',
-    status: 'Healthy',
-    hostIP: '192.168.1.2',
-    totalPods: 10,
-    totalCPUs: 200,
-    usedCPUs: 7,
-    totalRAM: 32,
-    usedRAM: 0.9,
-  },
-  {
-    id: "3",
-    name: 'Host3',
-    updatedAt: '2021-10-10',
-    createdAt: '2021-10-10',
-    cluster: 'SupaClusta',
-    type: 'worker',
-    status: 'Healthy',
-    hostIP: '192.168.1.3',
-    totalPods: 10,
-    totalCPUs: 200,
-    usedCPUs: 7,
-    totalRAM: 32,
-    usedRAM: 0.9,
-  },
-  {
-    id: "4",
-    name: 'Host4',
-    updatedAt: '2021-10-10',
-    createdAt: '2021-10-10',
-    cluster: 'SupaClusta',
-    type: 'worker',
-    status: 'Healthy',
-    hostIP: '192.168.1.4',
-    totalPods: 10,
-    totalCPUs: 200,
-    usedCPUs: 7,
-    totalRAM: 32,
-    usedRAM: 0.9,
-  },
-  {
-    id: "5",
-    name: 'Host5',
-    updatedAt: '2021-10-10',
-    createdAt: '2021-10-10',
-    cluster: 'SupaClusta',
-    type: 'worker',
-    status: 'Healthy',
-    hostIP: '192.168.1.5',
-    totalPods: 10,
-    totalCPUs: 200,
-    usedCPUs: 7,
-    totalRAM: 32,
-    usedRAM: 0.9,
-  },
-  {
-    id: "6",
-    name: 'Host6',
-    updatedAt: '2021-10-10',
-    createdAt: '2021-10-10',
-    cluster: 'SupaClusta',
-    type: 'worker',
-    status: 'Healthy',
-    hostIP: '192.168.1.6',
-    totalPods: 10,
-    totalCPUs: 200,
-    usedCPUs: 7,
-    totalRAM: 32,
-    usedRAM: 0.9,
-  },
-]

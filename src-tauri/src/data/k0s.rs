@@ -1,7 +1,8 @@
 #[cfg(unix)]
-use std::{os::unix::fs::PermissionsExt, result};
+use std::os::unix::fs::PermissionsExt;
 
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, TimestampSeconds};
 
 use super::{errors::DataError, setup::get_db_connection};
 
@@ -13,6 +14,7 @@ pub enum HostRole {
     Worker,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct Host {
     pub id: i32,
@@ -21,6 +23,10 @@ pub struct Host {
     pub ssh_user: String,
     pub ssh_key_path: Option<String>,
     pub ssh_password: Option<String>,
+    #[serde_as(as = "TimestampSeconds<i64>")]
+    pub created_at: sqlx::types::time::PrimitiveDateTime,
+    #[serde_as(as = "TimestampSeconds<i64>")]
+    pub updated_at: sqlx::types::time::PrimitiveDateTime,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
@@ -133,7 +139,9 @@ pub async fn create_hosts_table() -> Result<(), DataError> {
             address TEXT NOT NULL,
             ssh_user TEXT NOT NULL,
             ssh_key_path TEXT,
-            ssh_password TEXT
+            ssh_password TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         "#,
     )
@@ -155,7 +163,7 @@ pub async fn get_hosts() -> Result<Vec<Host>, DataError> {
     let hosts = sqlx::query_as::<_, Host>(
         r#"
         SELECT 
-            id, address, name, ssh_user, ssh_key_path, ssh_password
+            id, address, name, ssh_user, ssh_key_path, ssh_password, created_at, updated_at
         FROM hosts
         "#,
     )
@@ -176,7 +184,8 @@ pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
     println!("Adding host: {:?}", host);
     let result = sqlx::query(
         r#"
-        INSERT INTO hosts (name, address, ssh_user, ssh_key_path, ssh_password)
+        INSERT INTO hosts 
+        (name, address, ssh_user, ssh_key_path, ssh_password)
         VALUES ($1, $2, $3, $4, $5)
         "#,
     )
