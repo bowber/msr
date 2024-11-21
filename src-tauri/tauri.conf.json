@@ -11,10 +11,10 @@
     "targets": "all",
     "icon": ["icons/logo.png"]
   },
-  "productName": "tauri-app",
-  "mainBinaryName": "tauri-app",
+  "productName": "MSR",
+  "mainBinaryName": "MSR",
   "version": "0.1.0",
-  "identifier": "com.tauri-app.app",
+  "identifier": "com.msr.app",
   "plugins": {},
   "app": {
     "security": {
@@ -22,7 +22,7 @@
     },
     "windows": [
       {
-        "title": "tauri-app",
+        "title": "MSR",
         "width": 800,
         "height": 600,
         "decorations": false,
