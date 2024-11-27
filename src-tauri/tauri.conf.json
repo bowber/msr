@@ -8,8 +8,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
-    "icon": ["./icons/logo.png"]
+    "targets": "all"
   },
   "productName": "MSR",
   "mainBinaryName": "MSR",
