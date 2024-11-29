@@ -231,10 +231,15 @@ pub async fn delete_host(id: i32) -> Result<(), DataError> {
 
 pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
+    println!("Updating host: {:?}", host);
     let result = sqlx::query(
         r#"
         UPDATE hosts
-        SET address = $1, ssh_user = $2, ssh_key_path = $3, name: $4, ssh_password = $5
+        SET address = $1, 
+            ssh_user = $2, 
+            ssh_key_path = $3, 
+            name = $4, 
+            ssh_password = $5
         WHERE id = $6
         "#,
     )

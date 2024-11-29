@@ -44,6 +44,7 @@ export const HostsPage = () => {
 
 const HostDisplay = (props: { host: Host }) => {
   const hostsCtx = useHosts();
+  const ui = useUIController();
   return (
     <div class="bg-primary-100 p-2 first:rounded-t last:rounded-b">
       <div class="flex items center justify-start">
@@ -69,7 +70,7 @@ const HostDisplay = (props: { host: Host }) => {
 
         {/* Col 4 */}
         <div class="ml-auto flex self-center">
-          <BaseButton class="h-8">
+          <BaseButton class="h-8" onClick={() => ui.setShowUpdateHostForm(props.host.id)}>
             <img src="/icons/edit.svg" alt="edit" />
           </BaseButton>
           <BaseButton class="h-8">

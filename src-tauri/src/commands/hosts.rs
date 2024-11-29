@@ -14,10 +14,7 @@ impl From<Vec<Host>> for HostList {
 #[tauri::command]
 pub async fn get_hosts() -> Result<HostList, DataError> {
     match crate::data::k0s::get_hosts().await {
-        Ok(hosts) => {
-            println!("Hosts: {:?}", hosts);
-            Ok(HostList(hosts))
-        }
+        Ok(hosts) => Ok(HostList(hosts)),
         Err(e) => {
             eprintln!("Error getting hosts: {:?}", e);
             Err(e)

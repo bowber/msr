@@ -8,6 +8,7 @@ import { useLocation } from "@solidjs/router"
 import { NewHostDrawer } from "../components/drawers/new-host-drawer"
 import { NewClusterDrawer } from "../components/drawers/new-cluster-drawer"
 import { NewServiceDrawer } from "../components/drawers/new-service-drawer"
+import { UpdateHostDrawer } from "../components/drawers/update-host-drawer"
 
 export const MainLayout: ParentComponent = (props) => {
   const { isMaximized } = useUIController()
@@ -27,6 +28,7 @@ export const MainLayout: ParentComponent = (props) => {
         {/* Drawers */}
         <NewClusterDrawer />
         <NewHostDrawer />
+        <UpdateHostDrawer />
         <NewServiceDrawer />
       </div>
       <Toaster containerClassName="mt-7" position="top-center" />
