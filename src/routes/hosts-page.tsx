@@ -3,7 +3,8 @@ import { For } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
 import { useUIController } from "../contexts/ui-controller";
 import { useHosts } from "../contexts/hosts";
-import { Host } from "../commands/hosts";
+import { deleteHost, Host } from "../commands/hosts";
+import { askConfirmation } from "../utils/tauri";
 
 export const HostsPage = () => {
   const { setShowNewHostForm } = useUIController();
@@ -12,7 +13,7 @@ export const HostsPage = () => {
     <div class="p-4 w-fill-available h-fill-available  relative">
       <div class="flex">
         <h2>Hosts</h2>
-        <BaseButton class="h-8">
+        <BaseButton class="h-8" onClick={() => hostsContext.hosts.refetch()}>
           <img
             src="/icons/refresh.svg"
             alt="refresh"
@@ -40,6 +41,7 @@ export const HostsPage = () => {
 }
 
 const HostsDisplay = (props: { hosts: Host }) => {
+  const hostsCtx = useHosts();
   return (
     <div class="bg-primary-100 p-2 first:rounded-t last:rounded-b">
       <div class="flex items center justify-start">
@@ -71,7 +73,11 @@ const HostsDisplay = (props: { hosts: Host }) => {
           <BaseButton class="h-8">
             <img src="/icons/device-desktop-analytics.svg" alt="analytics" />
           </BaseButton>
-          <BaseButton class="h-8">
+          <BaseButton class="h-8" onClick={() => askConfirmation(
+            () => deleteHost(props.hosts.id).then(() => hostsCtx.hosts.refetch()),
+            `Delete ${props.hosts.name}?`,
+            { kind: 'warning' }
+          )}>
             <img src="/icons/x.svg" alt="delete" />
           </BaseButton>
         </div>
