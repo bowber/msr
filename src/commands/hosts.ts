@@ -16,14 +16,14 @@ const hostSchema = z.object({
   address: z.string(),
   ssh_user: z.string(),
   ssh_key_path: z.string().optional(),
-  ssh_password: z.string().nullable(),
+  ssh_password: z.string().optional(),
   updated_at: dateFromArraySchema,
   created_at: dateFromArraySchema,
 })
 
 export type Host = z.infer<typeof hostSchema>
 
-export const addHost = async (host: Omit<Host, 'id'>) => {
+export const addHost = async (host: Omit<Host, 'id' | 'updated_at' | 'created_at'>) => {
   return await invoke('add_host', { host })
 }
 

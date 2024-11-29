@@ -11,6 +11,7 @@ use tauri::Manager;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .setup(setup)
         .invoke_handler(tauri::generate_handler![

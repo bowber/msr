@@ -5,9 +5,16 @@ import { Input } from "../share/input";
 import { Select } from "../share/select";
 import { addHost } from "../../commands/hosts";
 import toast from "solid-toast";
+import { createSignal } from "solid-js";
+import { open } from '@tauri-apps/plugin-dialog';
+import { homeDir, join } from '@tauri-apps/api/path';
+import { useHosts } from "../../contexts/hosts";
 
 export const NewHostDrawer = () => {
   const { isShowNewHostForm, setShowNewHostForm } = useUIController()
+  const [sshPath, setSshPath] = createSignal("")
+  const hostsCxt = useHosts();
+
   const handleSubmit = (e: Event) => {
     e.preventDefault()
     const target = e.target as HTMLFormElement
@@ -20,6 +27,7 @@ export const NewHostDrawer = () => {
     addHost({ name, address, ssh_key_path, ssh_user })
       .then(() => {
         toast.success("Host added", { id: "add-host" })
+        hostsCxt.hosts.refetch()
         setShowNewHostForm(false)
       })
       .catch((e) => {
@@ -49,11 +57,20 @@ export const NewHostDrawer = () => {
         <Input type="text" class="w-full" name="ssh_user" />
 
         <p class="mt-2">SSH Key</p>
-        <Select
-          options={fakeSSHKeys}
-          class="w-full"
-          format={(v) => "formated-text-" + v}
-          onInput={(v) => console.log(v.currentTarget.value)}
+        <Input
+          class="w-full cursor-pointer"
+          readOnly
+          placeholder="Select SSH Key"
+          value={sshPath()}
+          onClick={async () => {
+            const file = await open({
+              multiple: false,
+              directory: false,
+              defaultPath: await join(await homeDir(), ".ssh"),
+              filters: [{ name: 'SSH Key', extensions: ['pub'] }]
+            });
+            setSshPath(file ?? '')
+          }}
           name="ssh_key_path"
         />
         <p class="mt-2">Assign to cluster (optional)</p>
@@ -71,14 +88,6 @@ export const NewHostDrawer = () => {
     </Drawer>
   )
 }
-
-
-const fakeSSHKeys = [
-  'ssh-key-1',
-  'ssh-key-2',
-  'ssh-key-3',
-  'ssh-key-4',
-]
 
 const fakeClusterIds = [
   'cluster-1',

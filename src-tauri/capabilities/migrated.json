@@ -2,7 +2,9 @@
   "identifier": "migrated",
   "description": "permissions that were migrated from v1",
   "local": true,
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-maximize",
@@ -16,6 +18,7 @@
     "core:window:allow-set-focus",
     "core:window:allow-start-dragging",
     "shell:allow-open",
-    "shell:default"
+    "shell:default",
+    "dialog:default"
   ]
 }

@@ -2,7 +2,7 @@
 use std::os::unix::fs::PermissionsExt;
 
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, TimestampSeconds};
+use serde_with::{serde_as, skip_serializing_none, TimestampSeconds};
 
 use super::{errors::DataError, setup::get_db_connection};
 
@@ -14,6 +14,7 @@ pub enum HostRole {
     Worker,
 }
 
+#[skip_serializing_none]
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct Host {
