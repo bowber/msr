@@ -1,18 +1,15 @@
 import { useUIController } from "../../contexts/ui-controller";
 import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
-import { Input } from "../share/input";
+import { FilePathInput, Input, PasswordInput } from "../share/input";
 import { Select } from "../share/select";
 import { addHost } from "../../commands/hosts";
 import toast from "solid-toast";
-import { createSignal } from "solid-js";
-import { open } from '@tauri-apps/plugin-dialog';
 import { homeDir, join } from '@tauri-apps/api/path';
 import { useHosts } from "../../contexts/hosts";
 
 export const NewHostDrawer = () => {
   const { isShowNewHostForm, setShowNewHostForm } = useUIController()
-  const [sshPath, setSshPath] = createSignal("")
   const hostsCxt = useHosts();
 
   const handleSubmit = (e: Event) => {
@@ -23,8 +20,9 @@ export const NewHostDrawer = () => {
     const address = formData.get('address') as string
     const ssh_key_path = formData.get('ssh_key_path') as string
     const ssh_user = formData.get('ssh_user') as string
+    const ssh_password = formData.get('ssh_password') as string
     toast.loading("Adding host...", { id: "add-host" })
-    addHost({ name, address, ssh_key_path, ssh_user })
+    addHost({ name, address, ssh_key_path, ssh_user, ssh_password })
       .then(() => {
         toast.success("Host added", { id: "add-host" })
         hostsCxt.hosts.refetch()
@@ -56,22 +54,18 @@ export const NewHostDrawer = () => {
         <p class="mt-2">SSH Username</p>
         <Input type="text" class="w-full" name="ssh_user" />
 
+        <p class="mt-2">SSH Password</p>
+        <PasswordInput class="w-full" name="ssh_password" />
+
         <p class="mt-2">SSH Key</p>
-        <Input
-          class="w-full cursor-pointer"
-          readOnly
+        <FilePathInput
+          class="w-full"
           placeholder="Select SSH Key"
-          value={sshPath()}
-          onClick={async () => {
-            const file = await open({
-              multiple: false,
-              directory: false,
-              defaultPath: await join(await homeDir(), ".ssh"),
-              filters: [{ name: 'SSH Key', extensions: ['pub'] }]
-            });
-            setSshPath(file ?? '')
-          }}
           name="ssh_key_path"
+          openDialogOptions={async () => ({
+            defaultPath: await join(await homeDir(), ".ssh"),
+            filters: [{ name: 'SSH Key', extensions: ['pub'] }]
+          })}
         />
         <p class="mt-2">Assign to cluster (optional)</p>
 

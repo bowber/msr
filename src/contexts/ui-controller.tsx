@@ -9,6 +9,8 @@ interface UIController {
   setShowNewClusterForm: (value: boolean) => void
   isShowNewHostForm: () => boolean
   setShowNewHostForm: (value: boolean) => void
+  isShowUpdateHostForm: () => boolean
+  setShowUpdateHostForm: (value: boolean) => void
   isShowNewServiceForm: () => boolean
   setShowNewServiceForm: (value: boolean) => void
   isShowNewNamespaceForm: () => boolean
@@ -34,6 +36,7 @@ export const UIControllerProvider:ParentComponent = (props) => {
   // UI Show/Hide
   const [isShowNewClusterForm, setShowNewClusterForm] = createSignal(false)
   const [isShowNewHostForm, setShowNewHostForm] = createSignal(false)
+  const [isShowUpdateHostForm, setShowUpdateHostForm] = createSignal(false)
   const [isShowNewServiceForm, setShowNewServiceForm] = createSignal(false)
   const [isShowNewNamespaceForm, setShowNewNamespaceForm] = createSignal(false)
 
@@ -50,6 +53,8 @@ export const UIControllerProvider:ParentComponent = (props) => {
         setShowNewClusterForm,
         isShowNewHostForm,
         setShowNewHostForm,
+        isShowUpdateHostForm,
+        setShowUpdateHostForm,
         isShowNewServiceForm,
         setShowNewServiceForm,
         isShowNewNamespaceForm,

@@ -29,7 +29,7 @@ export const MainLayout: ParentComponent = (props) => {
         <NewHostDrawer />
         <NewServiceDrawer />
       </div>
-      <Toaster containerClassName="mt-7" />
+      <Toaster containerClassName="mt-7" position="top-center" />
     </ div>
   )
 }
