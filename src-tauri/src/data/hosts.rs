@@ -195,7 +195,8 @@ pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
             ssh_key_path = $3, 
             name = $4, 
             ssh_password = $5,
-            cluster_id = $7
+            cluster_id = $7,
+            updated_at = CURRENT_TIMESTAMP
         WHERE id = $6
         "#,
     )

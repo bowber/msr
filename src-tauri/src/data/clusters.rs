@@ -130,6 +130,7 @@ pub async fn update_cluster(cluster: UpdateCluster) -> Result<(), DataError> {
         UPDATE clusters
         SET lb_address = $1, 
             name = $2, 
+            updated_at = CURRENT_TIMESTAMP
         WHERE id = $3
         "#,
     )
