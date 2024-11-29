@@ -3,7 +3,7 @@ import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
 import { FilePathInput, Input, PasswordInput } from "../share/input";
 import { Select } from "../share/select";
-import { updateHost } from "../../commands/hosts";
+import { updateHost, updateHostSchema } from "../../commands/hosts";
 import toast from "solid-toast";
 import { homeDir, join } from '@tauri-apps/api/path';
 import { useHosts } from "../../contexts/hosts";
@@ -25,14 +25,13 @@ export const UpdateHostDrawer = () => {
     if (id === undefined) return;
     const target = e.target as HTMLFormElement
     const formData = new FormData(target)
-    const name = formData.get('name') as string
-    const address = formData.get('address') as string
-    const ssh_key_path = formData.get('ssh_key_path') as string
-    const ssh_user = formData.get('ssh_user') as string
-    const ssh_password = formData.get('ssh_password') as string
-    const cluster_id = Number(formData.get('cluster_id') as string)
+    const formatedData = Object.fromEntries(formData.entries())
+    console.debug({ formatedData })
     toast.loading("Updating host...", { id: "update-host" })
-    updateHost({ id, name, address, ssh_key_path, ssh_user, ssh_password, cluster_id })
+    updateHost(updateHostSchema.parse({
+      ...formatedData,
+      id
+    }))
       .then(() => {
         toast.success("Host updated", { id: "update-host" })
         hostsCxt.hosts.refetch()
