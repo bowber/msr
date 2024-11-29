@@ -1,5 +1,6 @@
+use super::clusters::create_clusters_table;
 use super::errors::DataError;
-use super::k0s::create_hosts_table;
+use super::hosts::create_hosts_table;
 use sqlx;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::sqlite::SqlitePool;
@@ -33,5 +34,6 @@ pub async fn get_db_connection() -> Result<&'static SqlitePool, DataError> {
 
 pub async fn try_init_db() -> Result<(), DataError> {
     create_hosts_table().await?;
+    create_clusters_table().await?;
     Ok(())
 }

@@ -5,6 +5,7 @@ import { useUIController } from "../contexts/ui-controller";
 import { useHosts } from "../contexts/hosts";
 import { deleteHost, Host } from "../commands/hosts";
 import { askConfirmation } from "../utils/tauri";
+import { useClusters } from "../contexts/clusters";
 
 export const HostsPage = () => {
   const { setShowNewHostForm } = useUIController();
@@ -44,6 +45,7 @@ export const HostsPage = () => {
 
 const HostDisplay = (props: { host: Host }) => {
   const hostsCtx = useHosts();
+  const clustersCtx = useClusters();
   const ui = useUIController();
   return (
     <div class="bg-primary-100 p-2 first:rounded-t last:rounded-b">
@@ -53,7 +55,7 @@ const HostDisplay = (props: { host: Host }) => {
           <h4>{props.host.name}</h4>
           <span class="mt-auto">Updated: <b>{dayjs(props.host.updated_at).fromNow()}</b></span>
           <span>Created: <b>{dayjs(props.host.created_at).fromNow()}</b></span>
-          <span>Cluster: <b>{"NULL"}</b></span>
+          <span>Cluster: <b>{clustersCtx.clustersMap().get(props.host.cluster_id?.toString() ?? "")?.name ?? "NULL"}</b></span>
         </div>
 
         {/* Col 2 */}

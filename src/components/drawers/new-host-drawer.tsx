@@ -7,10 +7,13 @@ import { addHost } from "../../commands/hosts";
 import toast from "solid-toast";
 import { homeDir, join } from '@tauri-apps/api/path';
 import { useHosts } from "../../contexts/hosts";
+import { useClusters } from "../../contexts/clusters";
+import { createMemo } from "solid-js";
 
 export const NewHostDrawer = () => {
   const { isShowNewHostForm, setShowNewHostForm } = useUIController()
-  const hostsCxt = useHosts();
+  const hostsCtx = useHosts();
+  const clustersCtx = useClusters();
 
   const handleSubmit = (e: Event) => {
     e.preventDefault()
@@ -25,7 +28,7 @@ export const NewHostDrawer = () => {
     addHost({ name, address, ssh_key_path, ssh_user, ssh_password })
       .then(() => {
         toast.success("Host added", { id: "add-host" })
-        hostsCxt.hosts.refetch()
+        hostsCtx.hosts.refetch()
         setShowNewHostForm(false)
       })
       .catch((e) => {
@@ -70,9 +73,9 @@ export const NewHostDrawer = () => {
         <p class="mt-2">Assign to cluster (optional)</p>
 
         <Select
-          options={fakeClusterIds}
+          options={clustersCtx.clusters.data?.map((c) => c.id.toString()) ?? []}
           class="w-full"
-          format={(v) => "formated-text-" + v}
+          format={(v) => clustersCtx.clustersMap().get(v)?.name ?? "Unknown"}
           onInput={(v) => console.log(v.currentTarget.value)}
         />
         <Button class="sticky mt-8 bottom-2">
@@ -82,26 +85,4 @@ export const NewHostDrawer = () => {
     </Drawer>
   )
 }
-
-const fakeClusterIds = [
-  'cluster-1',
-  'cluster-2',
-  'cluster-3',
-  'cluster-4',
-  'cluster-5',
-  'cluster-6',
-  'cluster-7',
-  'cluster-8',
-  'cluster-9',
-  'cluster-10',
-  'cluster-11',
-  'cluster-12',
-  'cluster-13',
-  'cluster-14',
-  'cluster-15',
-  'cluster-16',
-  'cluster-17',
-  'cluster-18',
-  'cluster-19',
-]
 

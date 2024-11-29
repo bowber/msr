@@ -8,10 +8,12 @@ import toast from "solid-toast";
 import { homeDir, join } from '@tauri-apps/api/path';
 import { useHosts } from "../../contexts/hosts";
 import { createMemo } from "solid-js";
+import { useClusters } from "../../contexts/clusters";
 
 export const UpdateHostDrawer = () => {
   const { updatingHostId, setShowUpdateHostForm } = useUIController()
   const hostsCxt = useHosts();
+  const clustersCtx = useClusters();
 
   const host = createMemo(() => {
     return hostsCxt.hosts.data?.find(h => h.id === updatingHostId())
@@ -28,8 +30,9 @@ export const UpdateHostDrawer = () => {
     const ssh_key_path = formData.get('ssh_key_path') as string
     const ssh_user = formData.get('ssh_user') as string
     const ssh_password = formData.get('ssh_password') as string
+    const cluster_id = Number(formData.get('cluster_id') as string)
     toast.loading("Updating host...", { id: "update-host" })
-    updateHost({ id, name, address, ssh_key_path, ssh_user, ssh_password })
+    updateHost({ id, name, address, ssh_key_path, ssh_user, ssh_password, cluster_id })
       .then(() => {
         toast.success("Host updated", { id: "update-host" })
         hostsCxt.hosts.refetch()
@@ -78,9 +81,10 @@ export const UpdateHostDrawer = () => {
         <p class="mt-2">Assign to cluster (optional)</p>
 
         <Select
-          options={fakeClusterIds}
+          options={clustersCtx.clusters.data?.map((c) => c.id.toString()) ?? []}
           class="w-full"
-          format={(v) => "formated-text-" + v}
+          name="cluster_id"
+          format={(v) => clustersCtx.clustersMap().get(v)?.name ?? "Unknown"}
           onInput={(v) => console.log(v.currentTarget.value)}
         />
         <Button class="sticky mt-8 bottom-2">
@@ -90,26 +94,3 @@ export const UpdateHostDrawer = () => {
     </Drawer>
   )
 }
-
-const fakeClusterIds = [
-  'cluster-1',
-  'cluster-2',
-  'cluster-3',
-  'cluster-4',
-  'cluster-5',
-  'cluster-6',
-  'cluster-7',
-  'cluster-8',
-  'cluster-9',
-  'cluster-10',
-  'cluster-11',
-  'cluster-12',
-  'cluster-13',
-  'cluster-14',
-  'cluster-15',
-  'cluster-16',
-  'cluster-17',
-  'cluster-18',
-  'cluster-19',
-]
-

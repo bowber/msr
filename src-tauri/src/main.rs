@@ -21,6 +21,9 @@ fn main() {
             commands::hosts::delete_host,
             commands::hosts::update_host,
             commands::clusters::get_clusters,
+            commands::clusters::add_cluster,
+            commands::clusters::delete_cluster,
+            commands::clusters::update_cluster,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

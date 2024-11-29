@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "clear:unix": "kill $(lsof -t -i:1420)"
   },
   "license": "MIT",
   "dependencies": {

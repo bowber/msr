@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { For, Show } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
-import { useCluster } from "../contexts/clusters";
+import { useClusters } from "../contexts/clusters";
 import { useUIController } from "../contexts/ui-controller";
 
 export const ClustersPage = () => {
@@ -38,7 +38,7 @@ export const ClustersPage = () => {
 }
 
 const ClusterDisplay = (props: { cluster: typeof fakeData[0] }) => {
-  const clusterCtx = useCluster();
+  const clusterCtx = useClusters();
   return (
     <div class="bg-primary-100 p-2 first:rounded-t last:rounded-b">
       <div class="flex items center justify-start">
