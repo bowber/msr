@@ -141,8 +141,8 @@ pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
     let result = sqlx::query(
         r#"
         INSERT INTO hosts 
-        (name, address, ssh_user, ssh_key_path, ssh_password)
-        VALUES ($1, $2, $3, $4, $5)
+        (name, address, ssh_user, ssh_key_path, ssh_password, cluster_id)
+        VALUES ($1, $2, $3, $4, $5, $6)
         "#,
     )
     .bind(&host.name)
@@ -150,6 +150,7 @@ pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
     .bind(&host.ssh_user)
     .bind(&host.ssh_key_path)
     .bind(&host.ssh_password)
+    .bind(&host.cluster_id)
     .execute(pool)
     .await;
     match result {
