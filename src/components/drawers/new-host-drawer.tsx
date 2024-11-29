@@ -8,7 +8,6 @@ import toast from "solid-toast";
 import { homeDir, join } from '@tauri-apps/api/path';
 import { useHosts } from "../../contexts/hosts";
 import { useClusters } from "../../contexts/clusters";
-import { createMemo } from "solid-js";
 
 export const NewHostDrawer = () => {
   const { isShowNewHostForm, setShowNewHostForm } = useUIController()

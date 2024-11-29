@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Component, createSignal, Show } from "solid-js";
+import { Component, createSignal } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 import { open, OpenDialogOptions } from '@tauri-apps/plugin-dialog';
 import { BaseButton } from "./base-button";
@@ -53,7 +53,7 @@ export const FilePathInput: Component<FilePathInputProps> = (props) => {
       )}
       readOnly
       value={value()}
-      onClick={async (e) => {
+      onClick={async () => {
         const file = await open({
           multiple: false,
           directory: false,

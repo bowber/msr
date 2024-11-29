@@ -7,8 +7,8 @@ import { useTauri } from "./tauri";
 type ClusterContextType = {
   clusters: CreateQueryResult<Awaited<ReturnType<typeof getClusters>>>
   clustersMap: () => Map<string, Cluster>
-  defaultCluster: Accessor<string | undefined>
-  setDefaultCluster: Setter<string | undefined>
+  defaultCluster: Accessor<number | undefined>
+  setDefaultCluster: Setter<number | undefined>
 }
 
 const ClusterContext = createContext<ClusterContextType | null>(null)
@@ -23,7 +23,7 @@ export const useClusters = () => {
 export const ClusterProvider: ParentComponent = (props) => {
   const tauri = useTauri()
   const [defaultCluster, setDefaultCluster] = makePersisted(
-    createSignal<string>(),
+    createSignal<number>(),
     { name: "defaultCluster" }
   )
   const clusters = createQuery(() => ({
