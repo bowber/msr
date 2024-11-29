@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
 import { useUIController } from "../contexts/ui-controller";
 import { useHosts } from "../contexts/hosts";
@@ -27,29 +27,31 @@ export const HostsPage = () => {
         <p>SupaClusta</p>
       </BaseButton>
       <br />
-      <div class="p-1 rounded bg-primary-900 w-full">
-        <div class="overflow-y-auto space-y-1 max-h-[calc(100vh-9rem)]">
-          <For each={hostsContext.hosts.data}>
-            {(hosts) => (
-              <HostsDisplay hosts={hosts} />
-            )}
-          </For>
+      <Show when={Number(hostsContext.hosts.data?.length) > 0} fallback={<span>No host found</span>}>
+        <div class="p-1 rounded bg-primary-900 w-full">
+          <div class="overflow-y-auto space-y-1 max-h-[calc(100vh-9rem)]">
+            <For each={hostsContext.hosts.data}>
+              {(hosts) => (
+                <HostDisplay host={hosts} />
+              )}
+            </For>
+          </div>
         </div>
-      </div>
+      </Show>
     </div>
   );
 }
 
-const HostsDisplay = (props: { hosts: Host }) => {
+const HostDisplay = (props: { host: Host }) => {
   const hostsCtx = useHosts();
   return (
     <div class="bg-primary-100 p-2 first:rounded-t last:rounded-b">
       <div class="flex items center justify-start">
         {/* Col 1 */}
         <div class="flex flex-col">
-          <h4>{props.hosts.name}</h4>
-          <span class="mt-auto">Updated: <b>{dayjs(props.hosts.updated_at).fromNow()}</b></span>
-          <span>Created: <b>{dayjs(props.hosts.created_at).fromNow()}</b></span>
+          <h4>{props.host.name}</h4>
+          <span class="mt-auto">Updated: <b>{dayjs(props.host.updated_at).fromNow()}</b></span>
+          <span>Created: <b>{dayjs(props.host.created_at).fromNow()}</b></span>
           <span>Cluster: <b>{"NULL"}</b></span>
         </div>
 
@@ -74,8 +76,8 @@ const HostsDisplay = (props: { hosts: Host }) => {
             <img src="/icons/device-desktop-analytics.svg" alt="analytics" />
           </BaseButton>
           <BaseButton class="h-8" onClick={() => askConfirmation(
-            () => deleteHost(props.hosts.id).then(() => hostsCtx.hosts.refetch()),
-            `Delete ${props.hosts.name}?`,
+            () => deleteHost(props.host.id).then(() => hostsCtx.hosts.refetch()),
+            `Delete ${props.host.name}?`,
             { kind: 'warning' }
           )}>
             <img src="/icons/x.svg" alt="delete" />
