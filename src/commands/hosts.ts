@@ -2,8 +2,16 @@ import { invoke } from '@tauri-apps/api/core'
 import { z } from 'zod'
 import { dateFromArraySchema, stringToNumberSchema } from '../utils/zod'
 
-export const getHosts = async () => {
-  const hosts = await invoke('get_hosts')
+const getHostsOptionsSchema = z
+  .object({
+    cluster_id: stringToNumberSchema.optional(),
+  })
+  .optional()
+
+export const getHosts = async (options: Record<string, unknown> = {}) => {
+  const hosts = await invoke('get_hosts', {
+    options: getHostsOptionsSchema.parse(options),
+  })
   console.debug('Original hosts: ', hosts)
   return z.array(hostSchema).parse(hosts)
 }
@@ -20,22 +28,24 @@ const hostSchema = z.object({
   created_at: dateFromArraySchema,
 })
 
-export const newHostSchema = hostSchema.omit({ 
-  id: true, 
-  updated_at: true, 
-  created_at: true 
-}).extend({
-  cluster_id: stringToNumberSchema.optional()
-})
-export const updateHostSchema = newHostSchema.partial().extend({ id: z.number() })
+export const newHostSchema = hostSchema
+  .omit({
+    id: true,
+    updated_at: true,
+    created_at: true,
+  })
+  .extend({
+    cluster_id: stringToNumberSchema.optional(),
+  })
+export const updateHostSchema = newHostSchema
+  .partial()
+  .extend({ id: z.number() })
 
 export type Host = z.infer<typeof hostSchema>
 export type NewHostType = z.infer<typeof newHostSchema>
 export type UpdateHostType = z.infer<typeof updateHostSchema>
 
-export const addHost = async (
-  host: NewHostType
-) => {
+export const addHost = async (host: NewHostType) => {
   return await invoke('add_host', { host })
 }
 

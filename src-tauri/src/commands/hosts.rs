@@ -1,6 +1,6 @@
 use crate::data::{
     errors::DataError,
-    hosts::{CreateHost, Host, UpdateHost},
+    hosts::{CreateHost, GetHostOptions, Host, UpdateHost},
 };
 #[derive(serde::Serialize, Debug)]
 pub struct HostList(Vec<Host>);
@@ -12,8 +12,9 @@ impl From<Vec<Host>> for HostList {
 }
 
 #[tauri::command]
-pub async fn get_hosts() -> Result<HostList, DataError> {
-    match crate::data::hosts::get_hosts().await {
+pub async fn get_hosts(options: GetHostOptions) -> Result<HostList, DataError> {
+    println!("get_hosts: {:?}", options);
+    match crate::data::hosts::get_hosts(options).await {
         Ok(hosts) => Ok(HostList(hosts)),
         Err(e) => {
             eprintln!("Error getting hosts: {:?}", e);

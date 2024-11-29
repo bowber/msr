@@ -6,10 +6,12 @@ import { useHosts } from "../contexts/hosts";
 import { deleteHost, Host } from "../commands/hosts";
 import { askConfirmation } from "../utils/tauri";
 import { useClusters } from "../contexts/clusters";
+import { Select } from "../components/share/select";
 
 export const HostsPage = () => {
   const { setShowNewHostForm } = useUIController();
   const hostsContext = useHosts();
+  const clustersCtx = useClusters();
   return (
     <div class="p-4 w-fill-available h-fill-available  relative">
       <div class="flex">
@@ -24,10 +26,18 @@ export const HostsPage = () => {
           Create Host
         </BaseButton>
       </div>
-      <BaseButton>
-        <p>SupaClusta</p>
-      </BaseButton>
-      <br />
+      Cluster:
+      <Select
+        variant="secondary"
+        class="ml-2"
+        options={Array.from(clustersCtx.clustersMap().keys())}
+        format={(id) => clustersCtx.clustersMap().get(id)?.name || "All"}
+        onChange={(e) => e.target.value === ""
+          ? hostsContext.setFilter({})
+          : hostsContext.setFilter({ cluster_id: e.target.value })
+        }
+        showEmptyOption
+      />
       <Show when={Number(hostsContext.hosts.data?.length) > 0} fallback={<span>No host found</span>}>
         <div class="p-1 rounded bg-primary-900 w-full">
           <div class="overflow-y-auto space-y-1 max-h-[calc(100vh-9rem)]">

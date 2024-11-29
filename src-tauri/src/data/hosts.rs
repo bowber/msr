@@ -26,6 +26,10 @@ pub struct Host {
     pub updated_at: sqlx::types::time::PrimitiveDateTime,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct GetHostOptions {
+    pub cluster_id: Option<i64>,
+}
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct CreateHost {
     pub name: String,
@@ -114,15 +118,18 @@ pub async fn create_hosts_table() -> Result<(), DataError> {
     Ok(())
 }
 
-pub async fn get_hosts() -> Result<Vec<Host>, DataError> {
+pub async fn get_hosts(options: GetHostOptions) -> Result<Vec<Host>, DataError> {
     let pool = get_db_connection().await?;
     let hosts = sqlx::query_as::<_, Host>(
         r#"
         SELECT 
             id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at
         FROM hosts
+        WHERE
+            $1 IS NULL OR cluster_id = $1
         "#,
     )
+    .bind(options.cluster_id)
     .fetch_all(pool)
     .await;
 
