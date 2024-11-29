@@ -1,4 +1,12 @@
-import dayjs from "dayjs";
-import { z } from "zod";
+import dayjs from 'dayjs'
+import { z } from 'zod'
 
 export const dateFromArraySchema = z.number().transform((v) => dayjs(v * 1000))
+
+export const stringToNumberSchema = z.string().transform((v) => {
+  const num = Number(v)
+  if (isNaN(num)) {
+    throw new Error('Invalid number')
+  }
+  return num
+})

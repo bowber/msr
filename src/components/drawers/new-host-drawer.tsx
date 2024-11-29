@@ -3,7 +3,7 @@ import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
 import { FilePathInput, Input, PasswordInput } from "../share/input";
 import { Select } from "../share/select";
-import { addHost } from "../../commands/hosts";
+import { addHost, newHostSchema } from "../../commands/hosts";
 import toast from "solid-toast";
 import { homeDir, join } from '@tauri-apps/api/path';
 import { useHosts } from "../../contexts/hosts";
@@ -18,13 +18,11 @@ export const NewHostDrawer = () => {
     e.preventDefault()
     const target = e.target as HTMLFormElement
     const formData = new FormData(target)
-    const name = formData.get('name') as string
-    const address = formData.get('address') as string
-    const ssh_key_path = formData.get('ssh_key_path') as string
-    const ssh_user = formData.get('ssh_user') as string
-    const ssh_password = formData.get('ssh_password') as string
+    const formatedData = Object.fromEntries(formData.entries())
+    console.debug({formatedData})
+    
     toast.loading("Adding host...", { id: "add-host" })
-    addHost({ name, address, ssh_key_path, ssh_user, ssh_password })
+    addHost(newHostSchema.parse(formatedData))
       .then(() => {
         toast.success("Host added", { id: "add-host" })
         hostsCtx.hosts.refetch()
@@ -74,6 +72,7 @@ export const NewHostDrawer = () => {
         <Select
           options={clustersCtx.clusters.data?.map((c) => c.id.toString()) ?? []}
           class="w-full"
+          name="cluster_id"
           format={(v) => clustersCtx.clustersMap().get(v)?.name ?? "Unknown"}
           onInput={(v) => console.log(v.currentTarget.value)}
         />
