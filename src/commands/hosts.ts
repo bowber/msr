@@ -5,10 +5,13 @@ import { dateFromArraySchema, stringToNumberSchema } from '../utils/zod'
 const getHostsOptionsSchema = z
   .object({
     cluster_id: stringToNumberSchema.optional(),
+    host_id: z.number().optional(),
   })
   .optional()
 
-export const getHosts = async (options: Record<string, unknown> = {}) => {
+type GetHostsOptions = z.infer<typeof getHostsOptionsSchema>
+
+export const getHosts = async (options: GetHostsOptions = {}) => {
   const hosts = await invoke('get_hosts', {
     options: getHostsOptionsSchema.parse(options),
   })
