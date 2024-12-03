@@ -8,7 +8,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
 import RelativeTime from "dayjs/plugin/relativeTime"
 import ArraySupport from "dayjs/plugin/arraySupport"
 import dayjs from "dayjs";
-import { HostsProvider } from "./contexts/hosts";
 import { TauriProvider } from "./contexts/tauri";
 import { UIControllerProvider } from "./contexts/ui-controller";
 dayjs.extend(RelativeTime);
@@ -27,10 +26,8 @@ render(() => (
     <UIControllerProvider>
       <TauriProvider>
         <ClusterProvider>
-          <HostsProvider>
             <SolidQueryDevtools />
             <App />
-          </HostsProvider>
         </ClusterProvider>
       </TauriProvider>
     </UIControllerProvider>

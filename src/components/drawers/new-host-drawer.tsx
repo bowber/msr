@@ -6,12 +6,11 @@ import { Select } from "../share/select";
 import { addHost, newHostSchema } from "../../commands/hosts";
 import toast from "solid-toast";
 import { homeDir, join } from '@tauri-apps/api/path';
-import { useHosts } from "../../contexts/hosts";
 import { useClusters } from "../../contexts/clusters";
 
 export const NewHostDrawer = () => {
   const { isShowNewHostForm, setShowNewHostForm } = useUIController()
-  const hostsCtx = useHosts();
+  
   const clustersCtx = useClusters();
 
   const handleSubmit = (e: Event) => {
@@ -25,7 +24,8 @@ export const NewHostDrawer = () => {
     addHost(newHostSchema.parse(formatedData))
       .then(() => {
         toast.success("Host added", { id: "add-host" })
-        hostsCtx.hosts.refetch()
+        // TODO: Refetch hosts
+        // hostsCtx.hosts.refetch()
         setShowNewHostForm(false)
       })
       .catch((e) => {

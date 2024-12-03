@@ -3,21 +3,23 @@ import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
 import { FilePathInput, Input, PasswordInput } from "../share/input";
 import { Select } from "../share/select";
-import { updateHost, updateHostSchema } from "../../commands/hosts";
+import { getHosts, updateHost, updateHostSchema } from "../../commands/hosts";
 import toast from "solid-toast";
 import { homeDir, join } from '@tauri-apps/api/path';
-import { useHosts } from "../../contexts/hosts";
-import { createMemo } from "solid-js";
 import { useClusters } from "../../contexts/clusters";
+import { createQuery } from "@tanstack/solid-query";
 
 export const UpdateHostDrawer = () => {
   const { updatingHostId, setShowUpdateHostForm } = useUIController()
-  const hostsCxt = useHosts();
   const clustersCtx = useClusters();
 
-  const host = createMemo(() => {
-    return hostsCxt.hosts.data?.find(h => h.id === updatingHostId())
-  })
+  const host = createQuery(() => ({
+    queryKey: ["host", updatingHostId()],
+    queryFn: () => getHosts({
+      host_id: updatingHostId()
+    }).then((hosts) => hosts[0]),
+    enabled: updatingHostId() !== undefined
+  }))
 
   const handleSubmit = (e: Event) => {
     e.preventDefault()
@@ -34,7 +36,8 @@ export const UpdateHostDrawer = () => {
     }))
       .then(() => {
         toast.success("Host updated", { id: "update-host" })
-        hostsCxt.hosts.refetch()
+        // TODO: Refetch hosts
+        // hostsCxt.hosts.refetch()
         setShowUpdateHostForm()
       })
       .catch((e) => {
@@ -55,16 +58,16 @@ export const UpdateHostDrawer = () => {
         <h3>Host Details</h3>
 
         <p class="mt-2">Name</p>
-        <Input type="text" class="w-full" name="name" value={host()?.name} />
+        <Input type="text" class="w-full" name="name" value={host.data?.name} />
 
         <p class="mt-2">IP</p>
-        <Input type="text" class="w-full" name="address" value={host()?.address} />
+        <Input type="text" class="w-full" name="address" value={host.data?.address} />
 
         <p class="mt-2">SSH Username</p>
-        <Input type="text" class="w-full" name="ssh_user" value={host()?.ssh_user} />
+        <Input type="text" class="w-full" name="ssh_user" value={host.data?.ssh_user} />
 
         <p class="mt-2">SSH Password</p>
-        <PasswordInput class="w-full" name="ssh_password" value={host()?.ssh_password} />
+        <PasswordInput class="w-full" name="ssh_password" value={host.data?.ssh_password} />
 
         <p class="mt-2">SSH Key</p>
         <FilePathInput
@@ -75,7 +78,7 @@ export const UpdateHostDrawer = () => {
             defaultPath: await join(await homeDir(), ".ssh"),
             filters: [{ name: 'SSH Key', extensions: ['pub'] }]
           })}
-          value={host()?.ssh_key_path}
+          value={host.data?.ssh_key_path}
         />
         <p class="mt-2">Assign to cluster (optional)</p>
 

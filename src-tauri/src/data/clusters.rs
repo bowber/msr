@@ -82,7 +82,7 @@ pub async fn add_cluster(cluster: CreateCluster) -> Result<(), DataError> {
     let result = sqlx::query(
         r#"
         INSERT INTO clusters 
-        (name, lb_address, )
+        (name, lb_address)
         VALUES ($1, $2)
         "#,
     )

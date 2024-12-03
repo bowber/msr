@@ -12,7 +12,7 @@ export const Drawer = (props: DrawerProps) => {
   return (
     <Show when={props.isOpen}>
       <div
-        class="drop-shadow-lg absolute inset-0 pl-[calc(100%-28rem)] animate-move-in-r origin-right"
+        class="drop-shadow-lg absolute inset-0 pl-[calc(100%-28rem)] animate-fade-in origin-right bg-[#0005]"
         onClick={(e) => {
           // Close the modal when clicking outside the modal
           if (e.target === e.currentTarget) {
