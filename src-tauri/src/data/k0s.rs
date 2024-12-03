@@ -1,44 +1,69 @@
+use std::io::Write;
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
+use serde;
 use serde::{Deserialize, Serialize};
 
-use super::hosts::Host;
-
+use super::hosts::HostRole;
 const K0SCTL_VERSION: &str = "v0.19.0";
 
-#[derive(Serialize, Deserialize, Debug, Clone, sqlx::Type)]
-pub enum HostRole {
-    Controller,
-    Worker,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct K0SMetadata {
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct K0SInitParams {
-    pub cluster_name: String,
-    pub hosts: Vec<Host>,
+pub struct K0SSSH {
+    pub address: String,
+    pub user: Option<String>,
 }
 
-// #[derive(Debug)]
-// pub enum StatusTypes {
-//     Running,
-//     Stopped,
-//     Error,
-// }
+trait CompactSSH {
+    fn compact(&self) -> String;
+}
 
-// trait Status {
-//     async fn status(&self) -> Result<(), StatusTypes>;
-// }
+impl CompactSSH for K0SSSH {
+    fn compact(&self) -> String {
+        match &self.user {
+            Some(user) => format!("{}@{}", user, self.address),
+            None => self.address.clone(),
+        }
+    }
+}
 
-// impl Status for Host {
-//     async fn status(&self) -> Result<(), StatusTypes> {
-//         // SSH into the host and check the status of the host
-//     }
-// }
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct K0SHost {
+    pub role: HostRole,
+    pub ssh: K0SSSH,
+}
 
-// pub async fn init_k0s_cluster(opt: K0SInitParams) -> Result<(), String> {
-//     Ok(())
-// }
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct K0SInitSpec {
+    pub hosts: Vec<K0SHost>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct K0SInitParams {
+    pub api_version: String,
+    pub kind: String,
+    pub metadata: K0SMetadata,
+    pub spec: K0SInitSpec,
+}
+
+impl Default for K0SInitParams {
+    fn default() -> Self {
+        K0SInitParams {
+            api_version: "k0s.k0sproject.io/v1beta1".to_string(),
+            kind: "Cluster".to_string(),
+            metadata: K0SMetadata {
+                name: "k0s-cluster".to_string(),
+            },
+            spec: K0SInitSpec { hosts: vec![] },
+        }
+    }
+}
 
 pub fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
     let os = std::env::consts::OS;
@@ -91,5 +116,11 @@ pub fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
     }
     #[cfg(unix)]
     std::fs::set_permissions(filepath, std::fs::Permissions::from_mode(0o755))?;
+    Ok(())
+}
+
+pub async fn apply_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::error::Error>> {
+    let yaml = serde_yaml::to_string(params)?;
+    println!("init_cluster YAML: {}", yaml);
     Ok(())
 }

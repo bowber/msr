@@ -76,6 +76,28 @@ pub async fn get_clusters() -> Result<Vec<Cluster>, DataError> {
     }
 }
 
+pub async fn get_clusters_by_ids(ids: Vec<i64>) -> Result<Vec<Cluster>, DataError> {
+    let pool = get_db_connection().await?;
+    let clusters = sqlx::query_as::<_, Cluster>(
+        r#"
+        SELECT 
+            id, lb_address, name, created_at, updated_at
+        FROM clusters
+        WHERE id = ANY$1
+        "#,
+    )
+    .bind(format!("{:?}", ids).replace("[", "(").replace("]", ")"))
+    .fetch_all(pool)
+    .await;
+
+    match clusters {
+        Ok(clusters) => Ok(clusters),
+        Err(e) => {
+            eprintln!("Error getting cluster: {:?}", e);
+            return Err(DataError::ReadError);
+        }
+    }
+}
 pub async fn add_cluster(cluster: CreateCluster) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     println!("Adding cluster: {:?}", cluster);
@@ -101,7 +123,7 @@ pub async fn add_cluster(cluster: CreateCluster) -> Result<(), DataError> {
     Ok(())
 }
 
-pub async fn delete_cluster(id: i32) -> Result<(), DataError> {
+pub async fn delete_cluster(id: i64) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     let result = sqlx::query(
         r#"

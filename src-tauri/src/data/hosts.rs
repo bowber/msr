@@ -5,8 +5,14 @@ use super::{errors::DataError, setup::get_db_connection};
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::Type)]
 pub enum HostRole {
+    #[serde(rename = "controller")]
     Controller,
+    #[serde(rename = "worker")]
     Worker,
+    #[serde(rename = "single")]
+    Single,
+    #[serde(rename = "controller+worker")]
+    ControllerAndWorker,
 }
 
 #[skip_serializing_none]
@@ -24,6 +30,7 @@ pub struct Host {
     pub created_at: sqlx::types::time::PrimitiveDateTime,
     #[serde_as(as = "TimestampSeconds<i64>")]
     pub updated_at: sqlx::types::time::PrimitiveDateTime,
+    pub role: Option<HostRole>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -31,6 +38,7 @@ pub struct GetHostOptions {
     pub cluster_id: Option<i64>,
     pub host_id: Option<i64>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct CreateHost {
     pub name: String,
@@ -39,6 +47,7 @@ pub struct CreateHost {
     pub ssh_key_path: Option<String>,
     pub ssh_password: Option<String>,
     pub cluster_id: Option<i64>,
+    pub role: Option<HostRole>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
@@ -50,34 +59,8 @@ pub struct UpdateHost {
     pub ssh_key_path: Option<String>,
     pub ssh_password: Option<String>,
     pub cluster_id: Option<i64>,
+    pub role: Option<HostRole>,
 }
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct K0SInitParams {
-    pub cluster_name: String,
-    pub hosts: Vec<Host>,
-}
-
-// #[derive(Debug)]
-// pub enum StatusTypes {
-//     Running,
-//     Stopped,
-//     Error,
-// }
-
-// trait Status {
-//     async fn status(&self) -> Result<(), StatusTypes>;
-// }
-
-// impl Status for Host {
-//     async fn status(&self) -> Result<(), StatusTypes> {
-//         // SSH into the host and check the status of the host
-//     }
-// }
-
-// pub async fn init_k0s_cluster(opt: K0SInitParams) -> Result<(), String> {
-//     Ok(())
-// }
 
 pub async fn create_hosts_table() -> Result<(), DataError> {
     let pool = get_db_connection().await?;
@@ -133,6 +116,33 @@ pub async fn get_hosts(options: GetHostOptions) -> Result<Vec<Host>, DataError> 
     )
     .bind(options.cluster_id)
     .bind(options.host_id)
+    .fetch_all(pool)
+    .await;
+
+    match hosts {
+        Ok(hosts) => Ok(hosts),
+        Err(e) => {
+            eprintln!("Error getting hosts: {:?}", e);
+            return Err(DataError::ReadError);
+        }
+    }
+}
+
+pub async fn get_hosts_by_ids(ids: &Vec<i64>) -> Result<Vec<Host>, DataError> {
+    let pool = get_db_connection().await?;
+    let hosts = sqlx::query_as::<_, Host>(
+        r#"
+        SELECT 
+            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at
+        FROM hosts
+        WHERE id = ANY$1
+        "#,
+    )
+    .bind(
+        format!("{:?}", ids)
+        .replace("[", "(")
+        .replace("]", ")")
+    )
     .fetch_all(pool)
     .await;
 
