@@ -127,11 +127,10 @@ pub async fn get_hosts(options: GetHostOptions) -> Result<Vec<Host>, DataError> 
             id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at
         FROM hosts
         WHERE
-            $1 IS NULL OR cluster_id = $1
-            AND $2 IS NULL OR id = $2
+            ($1 IS NULL OR cluster_id = $1)
+            AND ($2 IS NULL OR id = $2)
         "#,
     )
-    // TODO: Fix this host_id filter not working
     .bind(options.cluster_id)
     .bind(options.host_id)
     .fetch_all(pool)
