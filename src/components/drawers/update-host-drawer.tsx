@@ -3,10 +3,11 @@ import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
 import { Input } from "../share/input";
 import { Select } from "../share/select";
-import { getHosts, updateHost, updateHostSchema } from "../../commands/hosts";
+import { getHosts, pingHost, updateHost, updateHostSchema } from "../../commands/hosts";
 import toast from "solid-toast";
 import { useClusters } from "../../contexts/clusters";
 import { createQuery } from "@tanstack/solid-query";
+import { Show } from "solid-js";
 
 export const UpdateHostDrawer = () => {
   const { updatingHostId, setShowUpdateHostForm } = useUIController()
@@ -18,6 +19,16 @@ export const UpdateHostDrawer = () => {
       host_id: updatingHostId()
     }).then((hosts) => hosts[0]),
     enabled: updatingHostId() !== undefined
+  }))
+
+  const hostStatus = createQuery(() => ({
+    queryKey: ["host-status", {
+      host: `${host.data?.ssh_user + '@'}${host.data?.address}`
+    }],
+    queryFn: () => pingHost({
+      host: `${host.data?.ssh_user + '@'}${host.data?.address}`
+    }),
+    enabled: host.data !== undefined
   }))
 
   const handleSubmit = (e: Event) => {
@@ -45,6 +56,7 @@ export const UpdateHostDrawer = () => {
       })
 
   }
+
   return (
     <Drawer
       isOpen={!!updatingHostId()}
@@ -74,6 +86,22 @@ export const UpdateHostDrawer = () => {
           format={(v) => clustersCtx.clustersMap().get(v)?.name ?? "Unknown"}
           onInput={(v) => console.log(v.currentTarget.value)}
         />
+        <p class="mt-2">Status: {" "}
+          <Show when={hostStatus.isLoading} >
+            <span class="font-bold">Loading...</span>
+          </Show>
+          <Show when={hostStatus.data} >
+            <span class="font-bold text-green-500">{hostStatus.data}</span>
+          </Show>
+          <Show when={hostStatus.error} >
+            <span class="font-bold text-red-500">Error - {hostStatus.error?.message}</span>
+          </Show>
+        </p>
+        <Show when={hostStatus.error} >
+          <span class="block">
+            Note: Make sure you have connected and added your local key to this host using ssh-copy-id.
+          </span>
+        </Show>
         <Button class="sticky mt-8 bottom-2">
           Save
         </Button>

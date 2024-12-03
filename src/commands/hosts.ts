@@ -40,13 +40,19 @@ export const newHostSchema = hostSchema
   .extend({
     cluster_id: stringToNumberSchema.optional(),
   })
+
 export const updateHostSchema = newHostSchema
   .partial()
   .extend({ id: z.number() })
 
+export const pingHostSchema = z.object({
+  host: z.string(),
+})
+
 export type Host = z.infer<typeof hostSchema>
 export type NewHostType = z.infer<typeof newHostSchema>
 export type UpdateHostType = z.infer<typeof updateHostSchema>
+export type PingHostConfig = z.infer<typeof pingHostSchema>
 
 export const addHost = async (host: NewHostType) => {
   return await invoke('add_host', { host })
@@ -59,4 +65,14 @@ export const deleteHost = async (id: number) => {
 export const updateHost = async (host: UpdateHostType) => {
   console.log('Updating host: ', host)
   return await invoke('update_host', { host })
+}
+
+export const pingHost = async (config: PingHostConfig) => {
+  console.log('Pinging host: ', config)
+  const status = await invoke('ping_ssh', { config })
+  .catch((e) => {
+    console.error(e)
+    throw new Error(e??'Failed to ping host')
+  })
+  return z.string().parse(status)
 }
