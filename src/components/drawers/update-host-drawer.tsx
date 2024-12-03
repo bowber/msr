@@ -1,11 +1,10 @@
 import { useUIController } from "../../contexts/ui-controller";
 import { Drawer } from "../share/drawer";
 import { Button } from "../share/button";
-import { FilePathInput, Input, PasswordInput } from "../share/input";
+import { Input } from "../share/input";
 import { Select } from "../share/select";
 import { getHosts, updateHost, updateHostSchema } from "../../commands/hosts";
 import toast from "solid-toast";
-import { homeDir, join } from '@tauri-apps/api/path';
 import { useClusters } from "../../contexts/clusters";
 import { createQuery } from "@tanstack/solid-query";
 
@@ -66,20 +65,6 @@ export const UpdateHostDrawer = () => {
         <p class="mt-2">SSH Username</p>
         <Input type="text" class="w-full" name="ssh_user" value={host.data?.ssh_user} />
 
-        <p class="mt-2">SSH Password</p>
-        <PasswordInput class="w-full" name="ssh_password" value={host.data?.ssh_password} />
-
-        <p class="mt-2">SSH Key</p>
-        <FilePathInput
-          class="w-full"
-          placeholder="Select SSH Key"
-          name="ssh_key_path"
-          openDialogOptions={async () => ({
-            defaultPath: await join(await homeDir(), ".ssh"),
-            filters: [{ name: 'SSH Key', extensions: ['pub'] }]
-          })}
-          value={host.data?.ssh_key_path}
-        />
         <p class="mt-2">Assign to cluster (optional)</p>
 
         <Select
