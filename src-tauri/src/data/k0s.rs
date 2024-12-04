@@ -1,4 +1,3 @@
-use std::io::Write;
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
@@ -17,19 +16,6 @@ pub struct K0SMetadata {
 pub struct K0SSSH {
     pub address: String,
     pub user: Option<String>,
-}
-
-trait CompactSSH {
-    fn compact(&self) -> String;
-}
-
-impl CompactSSH for K0SSSH {
-    fn compact(&self) -> String {
-        match &self.user {
-            Some(user) => format!("{}@{}", user, self.address),
-            None => self.address.clone(),
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -121,6 +107,6 @@ pub fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
 
 pub async fn apply_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::error::Error>> {
     let yaml = serde_yaml::to_string(params)?;
-    println!("init_cluster YAML: {}", yaml);
+    println!("init_cluster YAML: {}", &yaml);
     Ok(())
 }

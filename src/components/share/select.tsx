@@ -1,5 +1,5 @@
 import clsx from "clsx"
-import { JSX, Show } from "solid-js"
+import { createEffect, JSX, Show } from "solid-js"
 
 export interface SelectProps extends JSX.SelectHTMLAttributes<HTMLSelectElement> {
   options: string[]
@@ -12,9 +12,19 @@ export interface SelectProps extends JSX.SelectHTMLAttributes<HTMLSelectElement>
 }
 
 export const Select = (props: SelectProps) => {
+  let select: HTMLSelectElement | undefined;
+
+  createEffect(() => {
+    if (select === undefined) return;
+    if (props.defaultValue) {
+      select.value = props.defaultValue
+    }
+  })
+
   return (
     <select
       {...props}
+      ref={select}
       class={clsx(
         "text-center",
         props.variant === undefined && "border-2 border-primary-900 rounded-lg",
@@ -27,7 +37,7 @@ export const Select = (props: SelectProps) => {
       }}
     >
       <Show when={props.showEmptyOption}>
-        <option value={props.emptyOption ?? ""}>{props.format?.(props.emptyOption ?? "") ?? props.emptyOption}</option>
+        <option value=''>{props.format?.(props.emptyOption ?? "") ?? props.emptyOption}</option>
       </Show>
       {props.options.map(option => (
         <option value={option}>{props.format?.(option) ?? option}</option>

@@ -8,10 +8,6 @@ const appWindow = getCurrentWebviewWindow()
 
 function App() {
   const { setIsMaximized } = useUIController();
-  // Don't put this outside of the component if u don't want it focus whenever you makes any changes to this file
-  // onMount(() => {
-  //   appWindow.setAlwaysOnTop(true)
-  // });
 
   const eHandlers = Promise.all([
     appWindow.onResized(async () => {

@@ -20,10 +20,12 @@ fn main() {
             commands::hosts::add_host,
             commands::hosts::delete_host,
             commands::hosts::update_host,
+            commands::hosts::get_host_roles,
             commands::clusters::get_clusters,
             commands::clusters::add_cluster,
             commands::clusters::delete_cluster,
             commands::clusters::update_cluster,
+            commands::clusters::apply_cluster,
             commands::ssh::ping_ssh,
         ])
         .run(tauri::generate_context!())

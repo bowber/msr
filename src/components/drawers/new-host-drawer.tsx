@@ -6,10 +6,12 @@ import { Select } from "../share/select";
 import { addHost, newHostSchema } from "../../commands/hosts";
 import toast from "solid-toast";
 import { useClusters } from "../../contexts/clusters";
+import { useTauri } from "../../contexts/tauri";
 
 export const NewHostDrawer = () => {
   const { isShowNewHostForm, setShowNewHostForm } = useUIController()
-  
+
+  const tauriCtx = useTauri();
   const clustersCtx = useClusters();
 
   const handleSubmit = (e: Event) => {
@@ -17,8 +19,8 @@ export const NewHostDrawer = () => {
     const target = e.target as HTMLFormElement
     const formData = new FormData(target)
     const formatedData = Object.fromEntries(formData.entries())
-    console.debug({formatedData})
-    
+    console.debug({ formatedData })
+
     toast.loading("Adding host...", { id: "add-host" })
     addHost(newHostSchema.parse(formatedData))
       .then(() => {
@@ -53,8 +55,15 @@ export const NewHostDrawer = () => {
         <p class="mt-2">SSH Username</p>
         <Input type="text" class="w-full" name="ssh_user" />
 
-        <p class="mt-2">Assign to cluster (optional)</p>
+        <p class="mt-2">Role</p>
+        <Select
+          options={tauriCtx.hostRoles.data ?? []}
+          class="w-full"
+          name="role"
+          onInput={(v) => console.log(v.currentTarget.value)}
+        />
 
+        <p class="mt-2">Assign to cluster (optional)</p>
         <Select
           options={clustersCtx.clusters.data?.map((c) => c.id.toString()) ?? []}
           class="w-full"

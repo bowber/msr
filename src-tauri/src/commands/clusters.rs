@@ -35,7 +35,7 @@ pub async fn add_cluster(host: CreateCluster) -> Result<(), DataError> {
 }
 
 #[tauri::command]
-pub async fn apply_cluster(host_ids: Vec<i64>, cluster_id: i64) -> Result<(), String> {
+pub async fn apply_cluster(cluster_id: i64, host_ids: Vec<i64>) -> Result<(), String> {
     let clusters = match crate::data::clusters::get_clusters_by_ids(vec![cluster_id]).await {
         Ok(clusters) => clusters,
         Err(e) => {
@@ -58,7 +58,10 @@ pub async fn apply_cluster(host_ids: Vec<i64>, cluster_id: i64) -> Result<(), St
             hosts: hosts
                 .iter()
                 .map(|host| crate::data::k0s::K0SHost {
-                    role: crate::data::hosts::HostRole::Worker,
+                    role: host
+                        .role
+                        .clone()
+                        .unwrap_or(crate::data::hosts::HostRole::Worker),
                     ssh: crate::data::k0s::K0SSSH {
                         address: host.address.clone(),
                         user: Some(host.ssh_user.clone()),

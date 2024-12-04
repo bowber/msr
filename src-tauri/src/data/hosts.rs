@@ -99,6 +99,16 @@ pub async fn create_hosts_table() -> Result<(), DataError> {
     .await
     .ok();
 
+    sqlx::query(
+        r#"
+        ALTER TABLE hosts
+        ADD COLUMN role TEXT
+        "#,
+    )
+    .execute(pool)
+    .await
+    .ok();
+
     Ok(())
 }
 
@@ -107,7 +117,7 @@ pub async fn get_hosts(options: GetHostOptions) -> Result<Vec<Host>, DataError> 
     let hosts = sqlx::query_as::<_, Host>(
         r#"
         SELECT 
-            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at
+            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
         FROM hosts
         WHERE
             ($1 IS NULL OR cluster_id = $1)
@@ -133,7 +143,7 @@ pub async fn get_hosts_by_ids(ids: &Vec<i64>) -> Result<Vec<Host>, DataError> {
     let hosts = sqlx::query_as::<_, Host>(
         r#"
         SELECT 
-            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at
+            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
         FROM hosts
         WHERE id = ANY$1
         "#,
@@ -155,14 +165,14 @@ pub async fn get_hosts_by_ids(ids: &Vec<i64>) -> Result<Vec<Host>, DataError> {
     }
 }
 
-pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
+pub async fn add_host(host: &CreateHost) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     println!("Adding host: {:?}", host);
     let result = sqlx::query(
         r#"
         INSERT INTO hosts 
-        (name, address, ssh_user, ssh_key_path, ssh_password, cluster_id)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        (name, address, ssh_user, ssh_key_path, ssh_password, cluster_id, role)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         "#,
     )
     .bind(&host.name)
@@ -171,6 +181,7 @@ pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
     .bind(&host.ssh_key_path)
     .bind(&host.ssh_password)
     .bind(&host.cluster_id)
+    .bind(&host.role)
     .execute(pool)
     .await;
     match result {
@@ -205,7 +216,7 @@ pub async fn delete_host(id: i32) -> Result<(), DataError> {
     Ok(())
 }
 
-pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
+pub async fn update_host(host: &UpdateHost) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     println!("Updating host: {:?}", host);
     let result = sqlx::query(
@@ -217,6 +228,7 @@ pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
             name = $4, 
             ssh_password = $5,
             cluster_id = $7,
+            role = $8,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = $6
         "#,
@@ -228,6 +240,7 @@ pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
     .bind(&host.ssh_password)
     .bind(&host.id)
     .bind(&host.cluster_id)
+    .bind(&host.role)
     .execute(pool)
     .await;
 

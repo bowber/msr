@@ -10,3 +10,8 @@ export const stringToNumberSchema = z.string().transform((v) => {
   }
   return num
 })
+
+export const emptyStrToUndefinedSchema = z.string().transform((v) => {
+  if (v === '') return undefined
+  return v
+})

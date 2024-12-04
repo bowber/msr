@@ -2,9 +2,11 @@ import { createQuery, CreateQueryResult } from "@tanstack/solid-query";
 import { createContext, createEffect, ParentComponent, useContext } from "solid-js";
 import { setupTauri } from "../commands";
 import toast from "solid-toast";
+import { getHostRoles } from "../commands/hosts";
 
 type TauriContextType = {
   tauriSetup: CreateQueryResult<Awaited<ReturnType<typeof setupTauri>>>
+  hostRoles: CreateQueryResult<Awaited<ReturnType<typeof getHostRoles>>>
 }
 
 const TauriContext = createContext<TauriContextType | null>(null)
@@ -19,7 +21,14 @@ export const useTauri = () => {
 export const TauriProvider: ParentComponent = (props) => {
   const tauriSetup = createQuery(() => ({
     queryKey: ["tauri", "setup"],
-    queryFn: setupTauri
+    queryFn: setupTauri,
+    staleTime: Infinity,
+  }))
+
+  const hostRoles = createQuery(() => ({
+    queryKey: ["roles", "hosts"],
+    queryFn: getHostRoles,
+    staleTime: Infinity,
   }))
 
   createEffect(() => {
@@ -37,6 +46,7 @@ export const TauriProvider: ParentComponent = (props) => {
   return (
     <TauriContext.Provider value={{
       tauriSetup,
+      hostRoles
     }}>
       {props.children}
     </TauriContext.Provider>
