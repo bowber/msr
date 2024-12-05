@@ -25,7 +25,6 @@ fn main() {
             commands::clusters::add_cluster,
             commands::clusters::delete_cluster,
             commands::clusters::update_cluster,
-            commands::clusters::apply_cluster,
             commands::ssh::ping_ssh,
         ])
         .run(tauri::generate_context!())

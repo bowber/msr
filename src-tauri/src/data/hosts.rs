@@ -19,7 +19,7 @@ pub enum HostRole {
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct Host {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub address: String,
     pub ssh_user: String,
@@ -52,7 +52,7 @@ pub struct CreateHost {
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct UpdateHost {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub address: Option<String>,
     pub ssh_user: Option<String>,
@@ -195,7 +195,7 @@ pub async fn add_host(host: &CreateHost) -> Result<(), DataError> {
     Ok(())
 }
 
-pub async fn delete_host(id: i32) -> Result<(), DataError> {
+pub async fn delete_host(id: i64) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     let result = sqlx::query(
         r#"

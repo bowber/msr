@@ -24,14 +24,12 @@ pub async fn get_clusters() -> Result<HostList, DataError> {
 }
 
 #[tauri::command]
-pub async fn add_cluster(host: CreateCluster) -> Result<(), DataError> {
-    match crate::data::clusters::add_cluster(host).await {
-        Ok(()) => Ok(()),
-        Err(e) => {
-            eprintln!("Error adding cluster: {:?}", e);
-            Err(e)
-        }
-    }
+pub async fn add_cluster(cluster: CreateCluster, host_ids: Vec<i64>) -> Result<(), String> {
+    let insert_result = crate::data::clusters::add_cluster(cluster)
+        .await
+        .expect("Error adding cluster");
+
+    apply_cluster(insert_result.last_insert_rowid(), host_ids).await
 }
 
 #[tauri::command]
@@ -85,19 +83,16 @@ pub async fn delete_cluster(id: i64) -> Result<(), DataError> {
     match crate::data::clusters::delete_cluster(id).await {
         Ok(()) => Ok(()),
         Err(e) => {
-            eprintln!("Error deleting host: {:?}", e);
+            eprintln!("Error deleting cluster: {:?}", e);
             Err(e)
         }
     }
 }
 
 #[tauri::command]
-pub async fn update_cluster(host: UpdateCluster) -> Result<(), DataError> {
-    match crate::data::clusters::update_cluster(host).await {
-        Ok(()) => Ok(()),
-        Err(e) => {
-            eprintln!("Error updating host: {:?}", e);
-            Err(e)
-        }
-    }
+pub async fn update_cluster(cluster: UpdateCluster, host_ids: Vec<i64>) -> Result<(), String> {
+    crate::data::clusters::update_cluster(&cluster)
+        .await
+        .expect("Error updating cluster");
+    apply_cluster(cluster.id, host_ids).await
 }

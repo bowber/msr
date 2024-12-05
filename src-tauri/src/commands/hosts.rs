@@ -35,7 +35,7 @@ pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
 }
 
 #[tauri::command]
-pub async fn delete_host(id: i32) -> Result<(), DataError> {
+pub async fn delete_host(id: i64) -> Result<(), DataError> {
     match crate::data::hosts::delete_host(id).await {
         Ok(()) => Ok(()),
         Err(e) => {

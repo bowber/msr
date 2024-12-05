@@ -16,12 +16,31 @@ const clusterSchema = z.object({
   created_at: dateFromArraySchema,
 })
 
+export const newClusterSchema = clusterSchema
+  .omit({
+    id: true,
+    updated_at: true,
+    created_at: true,
+  })
+  .extend({
+    lb_address: z.string().ip(),
+    hostIds: z.array(z.number()).min(1, 'Please select at least one host'),
+  })
+
+export const updateClusterSchema = newClusterSchema
+  .partial()
+  .extend({ id: z.number() })
+
 export type Cluster = z.infer<typeof clusterSchema>
 
 export const addCluster = async (
-  cluster: Omit<Cluster, 'id' | 'updated_at' | 'created_at'>
+  cluster: Omit<Cluster, 'id' | 'updated_at' | 'created_at'>,
+  hostIds: number[]
 ) => {
-  return await invoke('add_cluster', { cluster })
+  return await invoke('add_cluster', {
+    cluster,
+    hostIds,
+  })
 }
 
 export const deleteCluster = async (id: number) => {
@@ -29,11 +48,8 @@ export const deleteCluster = async (id: number) => {
 }
 
 export const updateCluster = async (
-  cluster: Partial<Cluster> & { id: Cluster['id'] }
+  cluster: Partial<Cluster> & { id: Cluster['id'] },
+  hostIds: number[]
 ) => {
-  return await invoke('update_cluster', { cluster })
-}
-
-export const applyCluster = async (cluster_id: number, host_ids: number[]) => {
-  return await invoke('apply_cluster', { cluster_id, host_ids })
+  return await invoke('update_cluster', { cluster, hostIds })
 }

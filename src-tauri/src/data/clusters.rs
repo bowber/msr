@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none, TimestampSeconds};
+use sqlx::sqlite::SqliteQueryResult;
 
 use super::{errors::DataError, setup::get_db_connection};
 
@@ -7,7 +8,7 @@ use super::{errors::DataError, setup::get_db_connection};
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct Cluster {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub lb_address: String,
     #[serde_as(as = "TimestampSeconds<i64>")]
@@ -24,7 +25,7 @@ pub struct CreateCluster {
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct UpdateCluster {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub lb_address: Option<String>,
 }
@@ -98,7 +99,7 @@ pub async fn get_clusters_by_ids(ids: Vec<i64>) -> Result<Vec<Cluster>, DataErro
         }
     }
 }
-pub async fn add_cluster(cluster: CreateCluster) -> Result<(), DataError> {
+pub async fn add_cluster(cluster: CreateCluster) -> Result<SqliteQueryResult, DataError> {
     let pool = get_db_connection().await?;
     println!("Adding cluster: {:?}", cluster);
     let result = sqlx::query(
@@ -113,14 +114,12 @@ pub async fn add_cluster(cluster: CreateCluster) -> Result<(), DataError> {
     .execute(pool)
     .await;
     match result {
-        Ok(_) => Ok(()),
+        Ok(result) => Ok(result),
         Err(e) => {
             eprintln!("Error adding cluster: {:?}", e);
             Err(DataError::InsertError)
         }
-    }?;
-
-    Ok(())
+    }
 }
 
 pub async fn delete_cluster(id: i64) -> Result<(), DataError> {
@@ -144,7 +143,7 @@ pub async fn delete_cluster(id: i64) -> Result<(), DataError> {
     Ok(())
 }
 
-pub async fn update_cluster(cluster: UpdateCluster) -> Result<(), DataError> {
+pub async fn update_cluster(cluster: &UpdateCluster) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     println!("Updating cluster: {:?}", cluster);
     let result = sqlx::query(
