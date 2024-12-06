@@ -145,13 +145,13 @@ pub async fn get_hosts_by_ids(ids: &Vec<i64>) -> Result<Vec<Host>, DataError> {
         SELECT 
             id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
         FROM hosts
-        WHERE id = ANY$1
+        WHERE id IN ($1)
         "#,
     )
     .bind(
         format!("{:?}", ids)
-        .replace("[", "(")
-        .replace("]", ")")
+        .replace("[", "")
+        .replace("]", "")
     )
     .fetch_all(pool)
     .await;
@@ -248,6 +248,39 @@ pub async fn update_host(host: &UpdateHost) -> Result<(), DataError> {
         Ok(_) => Ok(()),
         Err(e) => {
             eprintln!("Error updating host: {:?}", e);
+            Err(DataError::UpdateError)
+        }
+    }?;
+    Ok(())
+}
+
+pub async fn update_hosts_cluster(host_ids: &Vec<i64>, cluster_id: i64) -> Result<(), DataError> {
+    println!(
+        "Updating hosts cluster: {:?} {} {}",
+        host_ids,
+        cluster_id,
+        format!("{:?}", host_ids).replace("[", "").replace("]", "")
+    );
+    let pool = get_db_connection().await?;
+    let result = sqlx::query(
+        r#"
+        UPDATE hosts
+        SET cluster_id = $1
+        WHERE id IN ($2)
+        "#,
+    )
+    .bind(cluster_id)
+    .bind(format!("{:?}", host_ids).replace("[", "").replace("]", ""))
+    .execute(pool)
+    .await;
+
+    match result {
+        Ok(r) => {
+            print!("Result: {:?}", r);
+            Ok(())
+        }
+        Err(e) => {
+            eprintln!("Error updating hosts cluster: {:?}", e);
             Err(DataError::UpdateError)
         }
     }?;

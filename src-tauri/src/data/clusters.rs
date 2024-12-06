@@ -84,10 +84,10 @@ pub async fn get_clusters_by_ids(ids: Vec<i64>) -> Result<Vec<Cluster>, DataErro
         SELECT 
             id, lb_address, name, created_at, updated_at
         FROM clusters
-        WHERE id = ANY$1
+        WHERE id IN ($1)
         "#,
     )
-    .bind(format!("{:?}", ids).replace("[", "(").replace("]", ")"))
+    .bind(format!("{:?}", ids).replace("[", "").replace("]", ""))
     .fetch_all(pool)
     .await;
 

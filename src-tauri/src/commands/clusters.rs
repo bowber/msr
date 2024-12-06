@@ -1,6 +1,7 @@
 use crate::data::{
     clusters::{Cluster, CreateCluster, UpdateCluster},
     errors::DataError,
+    hosts::update_hosts_cluster,
     k0s::{K0SInitParams, K0SInitSpec, K0SMetadata},
 };
 #[derive(serde::Serialize, Debug)]
@@ -28,11 +29,13 @@ pub async fn add_cluster(cluster: CreateCluster, host_ids: Vec<i64>) -> Result<(
     let insert_result = crate::data::clusters::add_cluster(cluster)
         .await
         .expect("Error adding cluster");
+    update_hosts_cluster(&host_ids, insert_result.last_insert_rowid())
+        .await
+        .expect("Error updating hosts");
 
     apply_cluster(insert_result.last_insert_rowid(), host_ids).await
 }
 
-#[tauri::command]
 pub async fn apply_cluster(cluster_id: i64, host_ids: Vec<i64>) -> Result<(), String> {
     let clusters = match crate::data::clusters::get_clusters_by_ids(vec![cluster_id]).await {
         Ok(clusters) => clusters,
@@ -94,5 +97,9 @@ pub async fn update_cluster(cluster: UpdateCluster, host_ids: Vec<i64>) -> Resul
     crate::data::clusters::update_cluster(&cluster)
         .await
         .expect("Error updating cluster");
+
+    update_hosts_cluster(&host_ids, cluster.id)
+        .await
+        .expect("Error updating hosts");
     apply_cluster(cluster.id, host_ids).await
 }

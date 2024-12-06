@@ -14,12 +14,14 @@ import toast from "solid-toast";
 export const NewClusterDrawer = () => {
   const { isShowNewClusterForm, setShowNewClusterForm } = useUIController()
   const [selectedHosts, setSelectedHosts] = createSignal<Record<string, boolean>>({})
+
   const idleHosts = createQuery(() => ({
     queryKey: ["idle-hosts", isShowNewClusterForm()],
     queryFn: () => getHosts({
       cluster_id: undefined
     }),
-    enabled: isShowNewClusterForm()
+    enabled: isShowNewClusterForm(),
+    select: (data) => data.filter((host) => host.cluster_id === undefined)
   }))
 
   const { formError, formErrorMap, submitHandlerBuilder } = createForm(() => ({
@@ -72,9 +74,14 @@ export const NewClusterDrawer = () => {
             <div class="px-4">
               <For each={data()}>
                 {host => (
-                  <HostDisplay host={host} onClickCheckbox={(value) => {
-                    setSelectedHosts((prev) => ({ ...prev, [host.id]: value }))
-                  }} />
+                  <HostDisplay
+                    host={host}
+                    checked={selectedHosts()[host.id]}
+                    setChecked={(value) => {
+                      setSelectedHosts((prev) => ({ ...prev, [host.id]: value }))
+                    }}
+
+                  />
                 )}
               </For>
             </div>
@@ -95,7 +102,11 @@ export const NewClusterDrawer = () => {
 }
 
 
-const HostDisplay = (props: { host: Host, onClickCheckbox: (value: boolean) => void }) => {
+const HostDisplay = (props: {
+  host: Host,
+  setChecked: (value: boolean) => void,
+  checked: boolean
+}) => {
   const [checked, setChecked] = createSignal(false)
   return (
     <BaseButton
@@ -103,7 +114,7 @@ const HostDisplay = (props: { host: Host, onClickCheckbox: (value: boolean) => v
       class="flex items-center justify-start w-full"
       onClick={(e) => {
         if (e.target !== e.currentTarget) return;
-        props.onClickCheckbox(!checked())
+        props.setChecked(!checked())
         setChecked(!checked())
       }}
     >

@@ -37,6 +37,7 @@ export const addCluster = async (
   cluster: Omit<Cluster, 'id' | 'updated_at' | 'created_at'>,
   hostIds: number[]
 ) => {
+  console.log('addCluster', cluster, hostIds)
   return await invoke('add_cluster', {
     cluster,
     hostIds,
