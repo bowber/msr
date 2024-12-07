@@ -50,7 +50,7 @@ export const HostsPage = () => {
           <div class="overflow-y-auto space-y-1 max-h-[calc(100vh-9rem)]">
             <For each={hosts.data}>
               {(host) => (
-                <HostDisplay host={host} hosts={hosts}/>
+                <HostDisplay host={host} hosts={hosts} />
               )}
             </For>
           </div>
@@ -60,7 +60,7 @@ export const HostsPage = () => {
   );
 }
 
-const HostDisplay = (props: { host: Host, hosts:CreateQueryResult<Host[]> }) => {
+const HostDisplay = (props: { host: Host, hosts: CreateQueryResult<Host[]> }) => {
   const clustersCtx = useClusters();
   const ui = useUIController();
   return (
@@ -77,7 +77,7 @@ const HostDisplay = (props: { host: Host, hosts:CreateQueryResult<Host[]> }) => 
         {/* Col 2 */}
         <div class="ml-4 flex flex-col">
           <span>Status: <b class="text-green-400">{"NULL"}</b></span>
-          <span>Type: <b>{"NULL"}</b></span>
+          <span>Role: <b>{props.host.role}</b></span>
           <span>Pods:  <b>{"NULL"}</b></span>
           <span>CPU ult: <b>{"NULL"}/{"NULL"}</b></span>
           <span>RAM usage: <b>{"NULL"}/{"NULL"} GiB</b></span>
