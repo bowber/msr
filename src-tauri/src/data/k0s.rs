@@ -107,6 +107,6 @@ pub fn download_k0sctl_binary() -> Result<(), Box<dyn std::error::Error>> {
 
 pub async fn apply_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::error::Error>> {
     let yaml = serde_yaml::to_string(params)?;
-    println!("init_cluster YAML: {}", &yaml);
+    println!("init_cluster YAML: \n{}", &yaml);
     Ok(())
 }

@@ -64,8 +64,7 @@ pub struct UpdateHost {
 
 pub async fn create_hosts_table() -> Result<(), DataError> {
     let pool = get_db_connection().await?;
-    let result = sqlx::query(
-        r#"
+    let create_table_query = r#"
         CREATE TABLE IF NOT EXISTS hosts (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
@@ -73,42 +72,66 @@ pub async fn create_hosts_table() -> Result<(), DataError> {
             ssh_user TEXT NOT NULL,
             ssh_key_path TEXT,
             ssh_password TEXT,
+            cluster_id INTEGER REFERENCES clusters(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            role TEXT
         )
-        "#,
-    )
-    .execute(pool)
-    .await;
+    "#;
 
-    match result {
-        Ok(_) => Ok(()),
-        Err(e) => {
-            eprintln!("Error creating hosts table: {:?}", e);
-            Err(DataError::InitTableError)?
-        }
-    }?;
-
-    sqlx::query(
+    let table_existed = sqlx::query(
         r#"
-        ALTER TABLE hosts
-        ADD COLUMN cluster_id INTEGER REFERENCES clusters(id)
+        SELECT name FROM sqlite_master WHERE type='table' AND name='hosts'
         "#,
     )
-    .execute(pool)
+    .fetch_one(pool)
     .await
-    .ok();
+    .map(|_r| true)
+    .or_else(|_e| Ok(false));
+    if table_existed? {
+        println!("Table hosts already exists, updating schema...");
+        // Rename old table
+        sqlx::query(r#"ALTER TABLE hosts RENAME TO hosts_old"#)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                eprintln!("Error renaming old hosts table: {:?}", e);
+                DataError::InitTableError
+            })?;
 
-    sqlx::query(
-        r#"
-        ALTER TABLE hosts
-        ADD COLUMN role TEXT
-        "#,
-    )
-    .execute(pool)
-    .await
-    .ok();
+        // Create new table
+        sqlx::query(create_table_query)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                eprintln!("Error creating new hosts table: {:?}", e);
+                DataError::InitTableError
+            })?;
 
+        // Copy data from old table to new table
+        sqlx::query(r#"
+            INSERT INTO hosts (id, name, address, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role)
+            SELECT id, name, address, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
+            FROM hosts_old
+        "#)
+        .execute(pool)
+        .await
+        .map_err(|e| {
+            eprintln!("Error copying data to new hosts table: {:?}", e);
+            DataError::InitTableError
+        })?;
+
+        // Drop old table
+        sqlx::query(r#"DROP TABLE hosts_old"#)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                eprintln!("Error dropping old hosts table: {:?}", e);
+                DataError::InitTableError
+            })?;
+    } else {
+        println!("Created hosts table");
+    }
     Ok(())
 }
 
@@ -275,7 +298,7 @@ pub async fn update_hosts_cluster(host_ids: &Vec<i64>, cluster_id: i64) -> Resul
 
     match result {
         Ok(r) => {
-            print!("Result: {:?}", r);
+            println!("Result: {:?}", r);
             Ok(())
         }
         Err(e) => {

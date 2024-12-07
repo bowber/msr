@@ -69,6 +69,11 @@ export const NewClusterDrawer = () => {
         <span class="text-red-500">{formErrorMap().get("lb_address")?.message}</span>
 
         <p class="mt-2">Hosts</p>
+        {/* <p>{JSON.stringify(
+          selectedHosts(),
+          null,
+          2
+        )}</p> */}
         <Show when={idleHosts.data}>
           {(data) => (
             <div class="px-4">
@@ -118,10 +123,10 @@ const HostDisplay = (props: {
     >
       <Input
         type="checkbox"
-        class="mr-2"
+        class="mr-2 pointer-events-none"
         checked={props.checked()}
       />
-      <span class="w-28 text-ellipsis break-all line-clamp-1">{props.host.name}</span>
+      <span class="w-28 text-ellipsis break-all line-clamp-1 pointer-events-none">{props.host.name}</span>
       <A href={`/hosts?hostId=${props.host.id}`}>
         <img src="/icons/edit.svg" alt="edit" />
       </A>

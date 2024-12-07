@@ -51,6 +51,7 @@ pub async fn apply_cluster(cluster_id: i64, host_ids: Vec<i64>) -> Result<(), St
             return Err(DataError::ReadError.to_string());
         }
     };
+    println!("Applying cluster: {:?} | {:?}", clusters[0], hosts);
     let params = K0SInitParams {
         metadata: K0SMetadata {
             name: format!("k0s-cluster-{}", clusters[0].id),
