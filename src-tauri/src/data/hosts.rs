@@ -255,24 +255,23 @@ pub async fn update_host(host: &UpdateHost) -> Result<(), DataError> {
 }
 
 pub async fn update_hosts_cluster(host_ids: &Vec<i64>, cluster_id: i64) -> Result<(), DataError> {
-    println!(
-        "Updating hosts cluster: {:?} {} {}",
-        host_ids,
-        cluster_id,
-        format!("{:?}", host_ids).replace("[", "").replace("]", "")
-    );
-    let pool = get_db_connection().await?;
-    let result = sqlx::query(
+    let condition = format!("WHERE id IN ({:?})", host_ids)
+        .replace("[", "")
+        .replace("]", "");
+    let query = format!(
         r#"
         UPDATE hosts
         SET cluster_id = $1
-        WHERE id IN ($2)
+        {condition}
         "#,
-    )
-    .bind(cluster_id)
-    .bind(format!("{:?}", host_ids).replace("[", "").replace("]", ""))
-    .execute(pool)
-    .await;
+        condition = condition
+    );
+    println!(
+        "Updating hosts cluster: {:?} {} {}",
+        host_ids, cluster_id, query
+    );
+    let pool = get_db_connection().await?;
+    let result = sqlx::query(&query).bind(cluster_id).execute(pool).await;
 
     match result {
         Ok(r) => {
