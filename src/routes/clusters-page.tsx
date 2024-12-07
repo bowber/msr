@@ -14,7 +14,7 @@ export const ClustersPage = () => {
     <div class="p-4 w-fill-available h-fill-available  relative">
       <div class="flex">
         <h2>Clusters</h2>
-        <BaseButton class="h-8">
+        <BaseButton class="h-8" onClick={() => clustersCtx.clusters.refetch()}>
           <img
             src="/icons/refresh.svg"
             alt="refresh"
