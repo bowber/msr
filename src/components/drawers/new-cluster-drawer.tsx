@@ -76,7 +76,7 @@ export const NewClusterDrawer = () => {
                 {host => (
                   <HostDisplay
                     host={host}
-                    checked={selectedHosts()[host.id]}
+                    checked={() => selectedHosts()[host.id]}
                     setChecked={(value) => {
                       setSelectedHosts((prev) => ({ ...prev, [host.id]: value }))
                     }}
@@ -105,23 +105,21 @@ export const NewClusterDrawer = () => {
 const HostDisplay = (props: {
   host: Host,
   setChecked: (value: boolean) => void,
-  checked: boolean
+  checked: () => boolean
 }) => {
-  const [checked, setChecked] = createSignal(false)
   return (
     <BaseButton
       type="button"
       class="flex items-center justify-start w-full"
       onClick={(e) => {
         if (e.target !== e.currentTarget) return;
-        props.setChecked(!checked())
-        setChecked(!checked())
+        props.setChecked(!props.checked())
       }}
     >
       <Input
         type="checkbox"
         class="mr-2"
-        checked={checked()}
+        checked={props.checked()}
       />
       <span class="w-28 text-ellipsis break-all line-clamp-1">{props.host.name}</span>
       <A href={`/hosts?hostId=${props.host.id}`}>
