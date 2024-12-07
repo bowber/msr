@@ -163,21 +163,19 @@ pub async fn get_hosts(options: GetHostOptions) -> Result<Vec<Host>, DataError> 
 
 pub async fn get_hosts_by_ids(ids: &Vec<i64>) -> Result<Vec<Host>, DataError> {
     let pool = get_db_connection().await?;
-    let hosts = sqlx::query_as::<_, Host>(
+    let condition = format!("WHERE id IN ({:?})", ids)
+        .replace("[", "")
+        .replace("]", "");
+    let query = format!(
         r#"
         SELECT 
             id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
         FROM hosts
-        WHERE id IN ($1)
+        {condition}
         "#,
-    )
-    .bind(
-        format!("{:?}", ids)
-        .replace("[", "")
-        .replace("]", "")
-    )
-    .fetch_all(pool)
-    .await;
+        condition = condition
+    );
+    let hosts = sqlx::query_as::<_, Host>(&query).fetch_all(pool).await;
 
     match hosts {
         Ok(hosts) => Ok(hosts),

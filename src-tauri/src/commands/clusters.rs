@@ -33,10 +33,10 @@ pub async fn add_cluster(cluster: CreateCluster, host_ids: Vec<i64>) -> Result<(
         .await
         .expect("Error updating hosts");
 
-    apply_cluster(insert_result.last_insert_rowid(), host_ids).await
+    apply_cluster(insert_result.last_insert_rowid(), &host_ids).await
 }
 
-pub async fn apply_cluster(cluster_id: i64, host_ids: Vec<i64>) -> Result<(), String> {
+pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), String> {
     let clusters = match crate::data::clusters::get_clusters_by_ids(vec![cluster_id]).await {
         Ok(clusters) => clusters,
         Err(e) => {
@@ -102,5 +102,5 @@ pub async fn update_cluster(cluster: UpdateCluster, host_ids: Vec<i64>) -> Resul
     update_hosts_cluster(&host_ids, cluster.id)
         .await
         .expect("Error updating hosts");
-    apply_cluster(cluster.id, host_ids).await
+    apply_cluster(cluster.id, &host_ids).await
 }
