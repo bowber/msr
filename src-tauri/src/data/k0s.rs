@@ -120,8 +120,8 @@ pub async fn reset_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
         .stdin(std::process::Stdio::piped())
         .spawn()?;
     let mut stdin = child.stdin.take().expect("Failed to open stdin");
-    stdin.write_all(yaml.as_bytes()).await?;
-
+    stdin.write(yaml.as_bytes()).await?;
+    drop(stdin);
     let output = match timeout(Duration::from_secs(1), child.wait_with_output()).await {
         Ok(Ok(output)) => output,
         Ok(Err(e)) => return Err(e.into()),
@@ -151,9 +151,9 @@ pub async fn apply_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
         .spawn()?;
     let mut stdin = child.stdin.take().expect("Failed to open stdin");
     stdin.write_all(yaml.as_bytes()).await?;
+    drop(stdin);
     let fut = child.wait_with_output();
-    tokio::spawn(fut);
-    let output = match timeout(Duration::from_secs(30), fut).await {
+    let output = match timeout(Duration::from_secs(300), fut).await {
         Ok(Ok(output)) => output,
         Ok(Err(e)) => return Err(e.into()),
         Err(_) => return Err("Process timed out".into()),
@@ -182,6 +182,7 @@ pub async fn get_cluster_config(
         .spawn()?;
     let mut stdin = child.stdin.take().expect("Failed to open stdin");
     stdin.write_all(yaml.as_bytes()).await?;
+    drop(stdin);
 
     let output = match timeout(Duration::from_secs(1), child.wait_with_output()).await {
         Ok(Ok(output)) => output,
