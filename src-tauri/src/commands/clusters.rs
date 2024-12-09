@@ -1,7 +1,7 @@
 use crate::data::{
     clusters::{Cluster, CreateCluster, UpdateCluster},
     errors::DataError,
-    hosts::update_hosts_cluster,
+    hosts::{update_hosts_cluster, GetHostOptions},
     k0s::{K0SInitParams, K0SInitSpec, K0SMetadata},
 };
 #[derive(serde::Serialize, Debug)]
@@ -24,6 +24,10 @@ pub async fn get_clusters() -> Result<HostList, DataError> {
     }
 }
 
+// #[tauri::command]
+// pub async fn get_cluster_config(id: i64) -> Result<String, String> {
+//     const cluster
+
 #[tauri::command]
 pub async fn add_cluster(cluster: CreateCluster, host_ids: Vec<i64>) -> Result<(), String> {
     let insert_result = crate::data::clusters::add_cluster(cluster)
@@ -36,14 +40,40 @@ pub async fn add_cluster(cluster: CreateCluster, host_ids: Vec<i64>) -> Result<(
     apply_cluster(insert_result.last_insert_rowid(), &host_ids).await
 }
 
-pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), String> {
-    let clusters = match crate::data::clusters::get_clusters_by_ids(vec![cluster_id]).await {
-        Ok(clusters) => clusters,
+#[tauri::command]
+pub async fn get_cluster_config(cluster_id: i64) -> Result<String, String> {
+    let hosts = match crate::data::hosts::get_hosts(GetHostOptions {
+        cluster_id: Some(cluster_id),
+        ..Default::default()
+    })
+    .await
+    {
+        Ok(hosts) => hosts,
         Err(e) => {
-            eprintln!("Error getting cluster: {:?}", e);
+            eprintln!("Error getting hosts: {:?}", e);
             return Err(DataError::ReadError.to_string());
         }
     };
+    println!("Getting cluster config: {:?} | {:?}", cluster_id, hosts);
+    let params = K0SInitParams {
+        metadata: K0SMetadata {
+            name: format!("k0s-cluster-{}", cluster_id),
+        },
+        spec: K0SInitSpec {
+            hosts: hosts.into_iter().map(|host| host.into()).collect(),
+        },
+        ..K0SInitParams::default()
+    };
+    match crate::data::k0s::get_cluster_config(&params).await {
+        Ok(config) => Ok(config),
+        Err(e) => {
+            eprintln!("Error getting cluster config: {:?}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), String> {
     let hosts = match crate::data::hosts::get_hosts_by_ids(&host_ids).await {
         Ok(hosts) => hosts,
         Err(e) => {
@@ -51,10 +81,10 @@ pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), S
             return Err(DataError::ReadError.to_string());
         }
     };
-    println!("Applying cluster: {:?} | {:?}", clusters[0], hosts);
+    println!("Applying cluster: {:?} | {:?}", cluster_id, hosts);
     let params = K0SInitParams {
         metadata: K0SMetadata {
-            name: format!("k0s-cluster-{}", clusters[0].id),
+            name: format!("k0s-cluster-{}", cluster_id),
         },
         spec: K0SInitSpec {
             hosts: hosts

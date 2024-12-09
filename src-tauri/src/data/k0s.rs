@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use tokio::io::AsyncWriteExt;
 use tokio::time::timeout;
 
-use super::hosts::HostRole;
+use super::hosts::{Host, HostRole};
 const K0SCTL_VERSION: &str = "v0.19.0";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -40,6 +40,19 @@ pub struct K0SInitParams {
     pub kind: String,
     pub metadata: K0SMetadata,
     pub spec: K0SInitSpec,
+}
+
+impl From<Host> for K0SHost {
+    fn from(host: Host) -> Self {
+        K0SHost {
+            role: host.role.unwrap_or(HostRole::Worker),
+            ssh: K0SSSH {
+                address: host.address,
+                user: Some(host.ssh_user),
+            },
+            reset: None,
+        }
+    }
 }
 
 impl Default for K0SInitParams {
@@ -149,9 +162,10 @@ pub async fn apply_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
         .arg("-")
         .stdin(std::process::Stdio::piped())
         .spawn()?;
-    let mut stdin = child.stdin.take().expect("Failed to open stdin");
-    stdin.write_all(yaml.as_bytes()).await?;
-    drop(stdin);
+    {
+        let mut stdin = child.stdin.take().expect("Failed to open stdin");
+        stdin.write_all(yaml.as_bytes()).await?;
+    }
     let fut = child.wait_with_output();
     let output = match timeout(Duration::from_secs(300), fut).await {
         Ok(Ok(output)) => output,
@@ -180,11 +194,12 @@ pub async fn get_cluster_config(
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::piped())
         .spawn()?;
-    let mut stdin = child.stdin.take().expect("Failed to open stdin");
-    stdin.write_all(yaml.as_bytes()).await?;
-    drop(stdin);
+    {
+        let mut stdin = child.stdin.take().expect("Failed to open stdin");
+        stdin.write_all(yaml.as_bytes()).await?;
+    }
 
-    let output = match timeout(Duration::from_secs(1), child.wait_with_output()).await {
+    let output = match timeout(Duration::from_secs(10), child.wait_with_output()).await {
         Ok(Ok(output)) => output,
         Ok(Err(e)) => return Err(e.into()),
         Err(_) => return Err("Process timed out".into()),

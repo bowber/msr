@@ -54,3 +54,7 @@ export const updateCluster = async (
 ) => {
   return await invoke('update_cluster', { cluster, hostIds })
 }
+
+export const getClusterConfig = async (id: number) => {
+  return await invoke('get_cluster_config', { clusterId: id })
+}

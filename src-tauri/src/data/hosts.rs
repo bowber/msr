@@ -33,7 +33,7 @@ pub struct Host {
     pub role: Option<HostRole>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct GetHostOptions {
     pub cluster_id: Option<i64>,
     pub host_id: Option<i64>,

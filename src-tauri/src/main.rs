@@ -22,6 +22,7 @@ fn main() {
             commands::hosts::update_host,
             commands::hosts::get_host_roles,
             commands::clusters::get_clusters,
+            commands::clusters::get_cluster_config,
             commands::clusters::add_cluster,
             commands::clusters::delete_cluster,
             commands::clusters::update_cluster,

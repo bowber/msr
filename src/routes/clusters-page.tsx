@@ -3,7 +3,7 @@ import { For, Show } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
 import { useClusters } from "../contexts/clusters";
 import { useUIController } from "../contexts/ui-controller";
-import { Cluster, deleteCluster } from "../commands/clusters";
+import { Cluster, deleteCluster, getClusterConfig } from "../commands/clusters";
 import { askConfirmation } from "../utils/tauri";
 import toast from "solid-toast";
 
@@ -85,7 +85,7 @@ const ClusterDisplay = (props: { cluster: Cluster }) => {
           <BaseButton class="h-8">
             <img src="/icons/edit.svg" alt="edit" />
           </BaseButton>
-          <BaseButton class="h-8">
+          <BaseButton class="h-8" onClick={() => getClusterConfig(props.cluster.id).then(c => console.debug("config", c))}>
             <img src="/icons/device-desktop-analytics.svg" alt="analytics" />
           </BaseButton>
           <BaseButton class="h-8" onClick={() => askConfirmation(() => {
