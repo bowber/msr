@@ -68,6 +68,7 @@ pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), S
                         address: host.address.clone(),
                         user: Some(host.ssh_user.clone()),
                     },
+                    reset: Some(false),
                 })
                 .collect(),
         },
