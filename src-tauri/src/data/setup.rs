@@ -1,15 +1,15 @@
 use super::clusters::create_clusters_table;
 use super::errors::DataError;
 use super::hosts::create_hosts_table;
-use sqlx;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::sqlite::SqlitePool;
+use sqlx::{self, Executor};
 use tokio::sync::OnceCell;
 
 pub static DB_CONNECTION: OnceCell<SqlitePool> = OnceCell::const_new();
 
 pub async fn get_db_connection() -> Result<&'static SqlitePool, DataError> {
-    DB_CONNECTION
+    let con = DB_CONNECTION
         .get_or_try_init(|| async {
             let path = crate::paths::SQLITE_PATH
                 .get()
@@ -29,7 +29,20 @@ pub async fn get_db_connection() -> Result<&'static SqlitePool, DataError> {
                 .await
                 .map_err(|_| DataError::PoolConnectionError)
         })
-        .await
+        .await;
+    match con {
+        Ok(con) => {
+            con.execute("PRAGMA foreign_keys = ON").await.map_err(|e| {
+                eprintln!("Error setting foreign keys: {:?}", e);
+                DataError::PoolConnectionError
+            })?;
+            Ok(con)
+        }
+        Err(e) => {
+            eprintln!("Error getting db connection: {:?}", e);
+            Err(DataError::PoolConnectionError)
+        }
+    }
 }
 
 pub async fn try_init_db() -> Result<(), DataError> {

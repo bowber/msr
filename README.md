@@ -25,3 +25,16 @@ This project includes a single app that provides tools to help quickly set up, m
 ## Recommended IDE Setup
 
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+
+## Development
+
+1. Clone this repository
+2. Install dependencies: `yarn install`
+3. Open 2 terminals
+4. In terminal 1, run `yarn dev` to start the frontend
+5. In terminal 2, change directory to `src-tauri` and run `cargo run` to start the backend
+6. Restart the backend when you make changes to the backend code, the frontend is hot-reloaded by default
+
+> Why not use `yarn tauri dev`? Because it will cause the auto `cargo check` of rust-analyzer to run very slow, which is not recommended for development.
+
+> Make sure you have Tauri Pre-requisites installed: https://v2.tauri.app/start/prerequisites/

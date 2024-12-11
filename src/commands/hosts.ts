@@ -1,6 +1,10 @@
 import { invoke } from '@tauri-apps/api/core'
 import { z } from 'zod'
-import { dateFromArraySchema, stringToNumberSchema } from '../utils/zod'
+import {
+  dateFromArraySchema,
+  emptyStrToUndefinedSchema,
+  stringToNumberSchema,
+} from '../utils/zod'
 
 const getHostsOptionsSchema = z
   .object({
@@ -22,11 +26,12 @@ export const getHosts = async (options: GetHostsOptions = {}) => {
 const hostSchema = z.object({
   id: z.number(),
   name: z.string(),
-  address: z.string(),
+  address: z.string().ip(),
   ssh_user: z.string(),
   ssh_key_path: z.string().optional(),
   ssh_password: z.string().optional(),
   cluster_id: z.number().optional(),
+  role: z.string().optional(),
   updated_at: dateFromArraySchema,
   created_at: dateFromArraySchema,
 })
@@ -38,7 +43,8 @@ export const newHostSchema = hostSchema
     created_at: true,
   })
   .extend({
-    cluster_id: stringToNumberSchema.optional(),
+    cluster_id: emptyStrToUndefinedSchema.pipe(stringToNumberSchema.optional()),
+    role: emptyStrToUndefinedSchema,
   })
 
 export const updateHostSchema = newHostSchema
@@ -69,10 +75,15 @@ export const updateHost = async (host: UpdateHostType) => {
 
 export const pingHost = async (config: PingHostConfig) => {
   console.log('Pinging host: ', config)
-  const status = await invoke('ping_ssh', { config })
-  .catch((e) => {
+  const status = await invoke('ping_ssh', { config }).catch((e) => {
     console.error(e)
-    throw new Error(e??'Failed to ping host')
+    throw new Error(e ?? 'Failed to ping host')
   })
   return z.string().parse(status)
+}
+
+export const getHostRoles = async () => {
+  const roles = await invoke('get_host_roles')
+  console.debug('Original roles: ', roles)
+  return z.array(z.string()).parse(roles)
 }

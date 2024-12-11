@@ -5,15 +5,21 @@ use super::{errors::DataError, setup::get_db_connection};
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::Type)]
 pub enum HostRole {
+    #[serde(rename = "controller")]
     Controller,
+    #[serde(rename = "worker")]
     Worker,
+    #[serde(rename = "single")]
+    Single,
+    #[serde(rename = "controller+worker")]
+    ControllerAndWorker,
 }
 
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct Host {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub address: String,
     pub ssh_user: String,
@@ -24,13 +30,15 @@ pub struct Host {
     pub created_at: sqlx::types::time::PrimitiveDateTime,
     #[serde_as(as = "TimestampSeconds<i64>")]
     pub updated_at: sqlx::types::time::PrimitiveDateTime,
+    pub role: Option<HostRole>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct GetHostOptions {
     pub cluster_id: Option<i64>,
     pub host_id: Option<i64>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct CreateHost {
     pub name: String,
@@ -39,50 +47,24 @@ pub struct CreateHost {
     pub ssh_key_path: Option<String>,
     pub ssh_password: Option<String>,
     pub cluster_id: Option<i64>,
+    pub role: Option<HostRole>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct UpdateHost {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub address: Option<String>,
     pub ssh_user: Option<String>,
     pub ssh_key_path: Option<String>,
     pub ssh_password: Option<String>,
     pub cluster_id: Option<i64>,
+    pub role: Option<HostRole>,
 }
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct K0SInitParams {
-    pub cluster_name: String,
-    pub hosts: Vec<Host>,
-}
-
-// #[derive(Debug)]
-// pub enum StatusTypes {
-//     Running,
-//     Stopped,
-//     Error,
-// }
-
-// trait Status {
-//     async fn status(&self) -> Result<(), StatusTypes>;
-// }
-
-// impl Status for Host {
-//     async fn status(&self) -> Result<(), StatusTypes> {
-//         // SSH into the host and check the status of the host
-//     }
-// }
-
-// pub async fn init_k0s_cluster(opt: K0SInitParams) -> Result<(), String> {
-//     Ok(())
-// }
 
 pub async fn create_hosts_table() -> Result<(), DataError> {
     let pool = get_db_connection().await?;
-    let result = sqlx::query(
-        r#"
+    let create_table_query = r#"
         CREATE TABLE IF NOT EXISTS hosts (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
@@ -90,32 +72,66 @@ pub async fn create_hosts_table() -> Result<(), DataError> {
             ssh_user TEXT NOT NULL,
             ssh_key_path TEXT,
             ssh_password TEXT,
+            cluster_id INTEGER REFERENCES clusters(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            role TEXT
         )
-        "#,
-    )
-    .execute(pool)
-    .await;
+    "#;
 
-    match result {
-        Ok(_) => Ok(()),
-        Err(e) => {
-            eprintln!("Error creating hosts table: {:?}", e);
-            Err(DataError::InitTableError)?
-        }
-    }?;
-
-    sqlx::query(
+    let table_existed = sqlx::query(
         r#"
-        ALTER TABLE hosts
-        ADD COLUMN cluster_id INTEGER REFERENCES clusters(id)
+        SELECT name FROM sqlite_master WHERE type='table' AND name='hosts'
         "#,
     )
-    .execute(pool)
+    .fetch_one(pool)
     .await
-    .ok();
+    .map(|_r| true)
+    .or_else(|_e| Ok(false));
+    if table_existed? {
+        println!("Table hosts already exists, updating schema...");
+        // Rename old table
+        sqlx::query(r#"ALTER TABLE hosts RENAME TO hosts_old"#)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                eprintln!("Error renaming old hosts table: {:?}", e);
+                DataError::InitTableError
+            })?;
 
+        // Create new table
+        sqlx::query(create_table_query)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                eprintln!("Error creating new hosts table: {:?}", e);
+                DataError::InitTableError
+            })?;
+
+        // Copy data from old table to new table
+        sqlx::query(r#"
+            INSERT INTO hosts (id, name, address, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role)
+            SELECT id, name, address, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
+            FROM hosts_old
+        "#)
+        .execute(pool)
+        .await
+        .map_err(|e| {
+            eprintln!("Error copying data to new hosts table: {:?}", e);
+            DataError::InitTableError
+        })?;
+
+        // Drop old table
+        sqlx::query(r#"DROP TABLE hosts_old"#)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                eprintln!("Error dropping old hosts table: {:?}", e);
+                DataError::InitTableError
+            })?;
+    } else {
+        println!("Created hosts table");
+    }
     Ok(())
 }
 
@@ -124,7 +140,7 @@ pub async fn get_hosts(options: GetHostOptions) -> Result<Vec<Host>, DataError> 
     let hosts = sqlx::query_as::<_, Host>(
         r#"
         SELECT 
-            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at
+            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
         FROM hosts
         WHERE
             ($1 IS NULL OR cluster_id = $1)
@@ -145,14 +161,39 @@ pub async fn get_hosts(options: GetHostOptions) -> Result<Vec<Host>, DataError> 
     }
 }
 
-pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
+pub async fn get_hosts_by_ids(ids: &Vec<i64>) -> Result<Vec<Host>, DataError> {
+    let pool = get_db_connection().await?;
+    let condition = format!("WHERE id IN ({:?})", ids)
+        .replace("[", "")
+        .replace("]", "");
+    let query = format!(
+        r#"
+        SELECT 
+            id, address, name, ssh_user, ssh_key_path, ssh_password, cluster_id, created_at, updated_at, role
+        FROM hosts
+        {condition}
+        "#,
+        condition = condition
+    );
+    let hosts = sqlx::query_as::<_, Host>(&query).fetch_all(pool).await;
+
+    match hosts {
+        Ok(hosts) => Ok(hosts),
+        Err(e) => {
+            eprintln!("Error getting hosts: {:?}", e);
+            return Err(DataError::ReadError);
+        }
+    }
+}
+
+pub async fn add_host(host: &CreateHost) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     println!("Adding host: {:?}", host);
     let result = sqlx::query(
         r#"
         INSERT INTO hosts 
-        (name, address, ssh_user, ssh_key_path, ssh_password, cluster_id)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        (name, address, ssh_user, ssh_key_path, ssh_password, cluster_id, role)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         "#,
     )
     .bind(&host.name)
@@ -161,6 +202,7 @@ pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
     .bind(&host.ssh_key_path)
     .bind(&host.ssh_password)
     .bind(&host.cluster_id)
+    .bind(&host.role)
     .execute(pool)
     .await;
     match result {
@@ -174,7 +216,7 @@ pub async fn add_host(host: CreateHost) -> Result<(), DataError> {
     Ok(())
 }
 
-pub async fn delete_host(id: i32) -> Result<(), DataError> {
+pub async fn delete_host(id: i64) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     let result = sqlx::query(
         r#"
@@ -195,7 +237,7 @@ pub async fn delete_host(id: i32) -> Result<(), DataError> {
     Ok(())
 }
 
-pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
+pub async fn update_host(host: &UpdateHost) -> Result<(), DataError> {
     let pool = get_db_connection().await?;
     println!("Updating host: {:?}", host);
     let result = sqlx::query(
@@ -207,6 +249,7 @@ pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
             name = $4, 
             ssh_password = $5,
             cluster_id = $7,
+            role = $8,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = $6
         "#,
@@ -218,6 +261,7 @@ pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
     .bind(&host.ssh_password)
     .bind(&host.id)
     .bind(&host.cluster_id)
+    .bind(&host.role)
     .execute(pool)
     .await;
 
@@ -225,6 +269,38 @@ pub async fn update_host(host: UpdateHost) -> Result<(), DataError> {
         Ok(_) => Ok(()),
         Err(e) => {
             eprintln!("Error updating host: {:?}", e);
+            Err(DataError::UpdateError)
+        }
+    }?;
+    Ok(())
+}
+
+pub async fn update_hosts_cluster(host_ids: &Vec<i64>, cluster_id: i64) -> Result<(), DataError> {
+    let condition = format!("WHERE id IN ({:?})", host_ids)
+        .replace("[", "")
+        .replace("]", "");
+    let query = format!(
+        r#"
+        UPDATE hosts
+        SET cluster_id = $1
+        {condition}
+        "#,
+        condition = condition
+    );
+    println!(
+        "Updating hosts cluster: {:?} {} {}",
+        host_ids, cluster_id, query
+    );
+    let pool = get_db_connection().await?;
+    let result = sqlx::query(&query).bind(cluster_id).execute(pool).await;
+
+    match result {
+        Ok(r) => {
+            println!("Result: {:?}", r);
+            Ok(())
+        }
+        Err(e) => {
+            eprintln!("Error updating hosts cluster: {:?}", e);
             Err(DataError::UpdateError)
         }
     }?;

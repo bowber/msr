@@ -3,7 +3,9 @@ import { For, Show } from "solid-js";
 import { BaseButton } from "../components/share/base-button";
 import { useClusters } from "../contexts/clusters";
 import { useUIController } from "../contexts/ui-controller";
-import { Cluster } from "../commands/clusters";
+import { Cluster, deleteCluster, getClusterConfig } from "../commands/clusters";
+import { askConfirmation } from "../utils/tauri";
+import toast from "solid-toast";
 
 export const ClustersPage = () => {
   const { setShowNewClusterForm } = useUIController();
@@ -12,7 +14,7 @@ export const ClustersPage = () => {
     <div class="p-4 w-fill-available h-fill-available  relative">
       <div class="flex">
         <h2>Clusters</h2>
-        <BaseButton class="h-8">
+        <BaseButton class="h-8" onClick={() => clustersCtx.clusters.refetch()}>
           <img
             src="/icons/refresh.svg"
             alt="refresh"
@@ -39,7 +41,7 @@ export const ClustersPage = () => {
   );
 }
 
-const ClusterDisplay = (props: {cluster: Cluster}) => {
+const ClusterDisplay = (props: { cluster: Cluster }) => {
   const clusterCtx = useClusters();
   return (
     <div class="bg-primary-100 p-2 first:rounded-t last:rounded-b">
@@ -83,10 +85,22 @@ const ClusterDisplay = (props: {cluster: Cluster}) => {
           <BaseButton class="h-8">
             <img src="/icons/edit.svg" alt="edit" />
           </BaseButton>
-          <BaseButton class="h-8">
+          <BaseButton class="h-8" onClick={() => getClusterConfig(props.cluster.id).then(c => console.debug("config", c))}>
             <img src="/icons/device-desktop-analytics.svg" alt="analytics" />
           </BaseButton>
-          <BaseButton class="h-8">
+          <BaseButton class="h-8" onClick={() => askConfirmation(() => {
+            toast.loading('Deleting cluster...', { id: 'delete-cluster' })
+            deleteCluster(props.cluster.id)
+              .then(() => {
+                toast.success('Cluster deleted', { id: 'delete-cluster' })
+                clusterCtx.clusters.refetch()
+              })
+              .catch((e) => {
+                toast.error('Failed to delete cluster', { id: 'delete-cluster' })
+                console.error(e)
+              })
+          })
+          }>
             <img src="/icons/x.svg" alt="delete" />
           </BaseButton>
         </div>
