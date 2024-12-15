@@ -31,6 +31,60 @@ pub struct K0SHost {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct K0SInitSpec {
     pub hosts: Vec<K0SHost>,
+    pub k0s: K0SInitK0S,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct K0SConfigNetworkKubeProxy {
+    pub disabled: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct K0SConfigNetwork {
+    pub provider: String,
+    pub kube_proxy: K0SConfigNetworkKubeProxy,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct K0SConfigSpec {
+    pub network: K0SConfigNetwork,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct K0SConfig {
+    pub api_version: String,
+    pub kind: String,
+    pub metadata: K0SMetadata,
+    pub spec: K0SConfigSpec,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct K0SInitK0S {
+    pub version: Option<String>,
+    pub config: K0SConfig,
+}
+
+impl Default for K0SInitK0S {
+    fn default() -> Self {
+        K0SInitK0S {
+            version: None,
+            config: K0SConfig {
+                api_version: "k0s.k0sproject.io/v1beta1".to_string(),
+                kind: "K0s".to_string(),
+                metadata: K0SMetadata {
+                    name: "k0s".to_string(),
+                },
+                spec: K0SConfigSpec {
+                    network: K0SConfigNetwork {
+                        provider: "custom".to_string(),
+                        kube_proxy: K0SConfigNetworkKubeProxy { disabled: true },
+                    },
+                },
+            },
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -63,7 +117,25 @@ impl Default for K0SInitParams {
             metadata: K0SMetadata {
                 name: "k0s-cluster".to_string(),
             },
-            spec: K0SInitSpec { hosts: vec![] },
+            spec: K0SInitSpec {
+                hosts: vec![],
+                k0s: K0SInitK0S {
+                    version: None,
+                    config: K0SConfig {
+                        api_version: "k0s.k0sproject.io/v1beta1".to_string(),
+                        kind: "K0s".to_string(),
+                        metadata: K0SMetadata {
+                            name: "k0s".to_string(),
+                        },
+                        spec: K0SConfigSpec {
+                            network: K0SConfigNetwork {
+                                provider: "custom".to_string(),
+                                kube_proxy: K0SConfigNetworkKubeProxy { disabled: true },
+                            },
+                        },
+                    },
+                },
+            },
         }
     }
 }
@@ -128,13 +200,13 @@ pub async fn reset_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
     let mut child = tokio::process::Command::new(crate::paths::K0SCTL_BINARY_PATH.get().unwrap())
         .arg("reset")
         .arg("--config")
-        .arg("--force")
         .arg("-")
         .stdin(std::process::Stdio::piped())
         .spawn()?;
-    let mut stdin = child.stdin.take().expect("Failed to open stdin");
-    stdin.write(yaml.as_bytes()).await?;
-    drop(stdin);
+    {
+        let mut stdin = child.stdin.take().expect("Failed to open stdin");
+        stdin.write(yaml.as_bytes()).await?;
+    }
     let output = match timeout(Duration::from_secs(1), child.wait_with_output()).await {
         Ok(Ok(output)) => output,
         Ok(Err(e)) => return Err(e.into()),
@@ -151,9 +223,6 @@ pub async fn reset_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
 }
 
 pub async fn apply_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::error::Error>> {
-    // TODO: Only reset cluster for testing purposes
-    // Separate reset and apply cluster on different commands
-    // reset_cluster(params).await?;
     let yaml = serde_yaml::to_string(params)?;
     println!("apply_cluster YAML: \n{}", &yaml);
     let mut child = tokio::process::Command::new(crate::paths::K0SCTL_BINARY_PATH.get().unwrap())
@@ -179,6 +248,7 @@ pub async fn apply_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
         )
         .into());
     }
+
     Ok(())
 }
 
@@ -214,3 +284,62 @@ pub async fn get_cluster_config(
     let config = String::from_utf8_lossy(&output.stdout).to_string();
     Ok(config)
 }
+
+// pub async fn execute_remote_script_with_agent(
+//     username: &str,
+//     vps_ip: &str,
+//     local_script_path: &str,
+//     remote_script_path: &str,
+// ) -> Result<String, Box<dyn std::error::Error>> {
+//     // Step 1: Copy the script to the remote server
+//     let mut child = tokio::process::Command::new("scp")
+//         .arg(local_script_path)
+//         .arg(format!("{}@{}:{}", username, vps_ip, remote_script_path))
+//         .output()
+//         .await
+//         .expect("Failed to copy script to remote server");
+
+//     if !child.status.success() {
+//         return Err(format!(
+//             "Failed to copy script to remote server: {}",
+//             String::from_utf8_lossy(&child.stderr)
+//         )
+//         .into());
+//     };
+
+//     // Step 2: Make the script executable on the remote server
+//     child = tokio::process::Command::new("ssh")
+//         .arg(format!("{}@{}", username, vps_ip))
+//         .arg(format!("chmod +x {}", remote_script_path))
+//         .output()
+//         .await
+//         .expect("Failed to make script executable on remote server");
+
+//     if !child.status.success() {
+//         return Err(format!(
+//             "Failed to make script executable on remote server: {}",
+//             String::from_utf8_lossy(&child.stderr)
+//         )
+//         .into());
+//     };
+
+//     // Step 3: Execute the script on the remote server
+//     child = tokio::process::Command::new("ssh")
+//         .arg(format!("{}@{}", username, vps_ip))
+//         .arg(remote_script_path)
+//         .output()
+//         .await
+//         .expect("Failed to execute script on remote server");
+
+//     if !child.status.success() {
+//         return Err(format!(
+//             "Failed to execute script on remote server: {}",
+//             String::from_utf8_lossy(&child.stderr)
+//         )
+//         .into());
+//     };
+
+//     let output = String::from_utf8_lossy(&child.stdout).to_string();
+
+//     Ok(output)
+// }

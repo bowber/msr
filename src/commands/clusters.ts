@@ -56,5 +56,6 @@ export const updateCluster = async (
 }
 
 export const getClusterConfig = async (id: number) => {
-  return await invoke('get_cluster_config', { clusterId: id })
+  const result = await invoke('get_cluster_config', { clusterId: id })
+  return z.string().parse(result)
 }

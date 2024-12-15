@@ -82,10 +82,21 @@ const ClusterDisplay = (props: { cluster: Cluster }) => {
 
         {/* Col 4 */}
         <div class="ml-auto flex self-center">
-          <BaseButton class="h-8">
+          <BaseButton class="h-8" onClick={() => {
+            toast.loading('Fetching logs...', { id: 'get-cluster-logs' })
+          }}>
             <img src="/icons/edit.svg" alt="edit" />
           </BaseButton>
-          <BaseButton class="h-8" onClick={() => getClusterConfig(props.cluster.id).then(c => console.debug("config", c))}>
+          <BaseButton class="h-8" onClick={() => {
+            toast.loading('Fetching config...', { id: 'get-cluster-config' })
+            getClusterConfig(props.cluster.id).then(c => {
+              toast.success('Config fetched to clipboard', { id: 'get-cluster-config' })
+              navigator.clipboard.writeText(c)
+            }).catch(e => {
+              toast.error('Failed to fetch config', { id: 'get-cluster-config' })
+              console.error(e)
+            })
+          }}>
             <img src="/icons/device-desktop-analytics.svg" alt="analytics" />
           </BaseButton>
           <BaseButton class="h-8" onClick={() => askConfirmation(() => {

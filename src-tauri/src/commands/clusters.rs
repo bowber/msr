@@ -1,9 +1,14 @@
+use std::env::args;
+
 use crate::data::{
     clusters::{Cluster, CreateCluster, UpdateCluster},
     errors::DataError,
     hosts::{update_hosts_cluster, GetHostOptions},
-    k0s::{K0SInitParams, K0SInitSpec, K0SMetadata},
+    k0s::{K0SInitK0S, K0SInitParams, K0SInitSpec, K0SMetadata},
 };
+
+use tauri_plugin_shell::ShellExt;
+
 #[derive(serde::Serialize, Debug)]
 pub struct HostList(Vec<Cluster>);
 
@@ -61,6 +66,7 @@ pub async fn get_cluster_config(cluster_id: i64) -> Result<String, String> {
         },
         spec: K0SInitSpec {
             hosts: hosts.into_iter().map(|host| host.into()).collect(),
+            k0s: K0SInitK0S::default(),
         },
         ..K0SInitParams::default()
     };
@@ -71,6 +77,50 @@ pub async fn get_cluster_config(cluster_id: i64) -> Result<String, String> {
             Err(e.to_string())
         }
     }
+}
+
+#[tauri::command]
+pub async fn install_cilium(app: tauri::AppHandle) -> Result<(), String> {
+    let sidecar_command = app
+        .shell()
+        .sidecar("cilium")
+        .expect("Cannot create cilium sidecar")
+        .arg("install")
+        .arg("--set kubeProxyReplacement=true")
+        .arg("--set gatewayAPI.enabled=true");
+    let out = sidecar_command
+        .output()
+        .await
+        .expect("Failed to run cilium install");
+    if !out.status.success() {
+        return Err(format!(
+            "Failed to install Cilium: {}",
+            String::from_utf8_lossy(&out.stderr)
+        )
+        .into());
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn enable_hubble(app: tauri::AppHandle) -> Result<(), String> {
+    let sidecar_command = app
+        .shell()
+        .sidecar("cilium")
+        .expect("Cannot create cilium sidecar")
+        .args(&["hubble", "install"]);
+    let out = sidecar_command
+        .output()
+        .await
+        .expect("Failed to run cilium hubble install");
+    if !out.status.success() {
+        return Err(format!(
+            "Failed to install Hubble: {}",
+            String::from_utf8_lossy(&out.stderr)
+        )
+        .into());
+    }
+    Ok(())
 }
 
 pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), String> {
@@ -101,6 +151,7 @@ pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), S
                     reset: Some(false),
                 })
                 .collect(),
+            k0s: K0SInitK0S::default(),
         },
         ..K0SInitParams::default()
     };
@@ -114,12 +165,57 @@ pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), S
 }
 
 #[tauri::command]
-pub async fn delete_cluster(id: i64) -> Result<(), DataError> {
+pub async fn delete_cluster(id: i64) -> Result<(), String> {
+    let hosts = match crate::data::hosts::get_hosts(GetHostOptions {
+        cluster_id: Some(id),
+        ..Default::default()
+    })
+    .await
+    {
+        Ok(hosts) => hosts,
+        Err(e) => {
+            eprintln!("Error getting hosts: {:?}", e);
+            return Err(DataError::ReadError.to_string());
+        }
+    };
+
+    println!("Reseting cluster: {:?} | {:?}", id, hosts);
+    let params = K0SInitParams {
+        metadata: K0SMetadata {
+            name: format!("k0s-cluster-{}", id),
+        },
+        spec: K0SInitSpec {
+            hosts: hosts
+                .iter()
+                .map(|host| crate::data::k0s::K0SHost {
+                    role: host
+                        .role
+                        .clone()
+                        .unwrap_or(crate::data::hosts::HostRole::Worker),
+                    ssh: crate::data::k0s::K0SSSH {
+                        address: host.address.clone(),
+                        user: Some(host.ssh_user.clone()),
+                    },
+                    reset: Some(false),
+                })
+                .collect(),
+            k0s: K0SInitK0S::default(),
+        },
+        ..K0SInitParams::default()
+    };
+    match crate::data::k0s::reset_cluster(&params).await {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            eprintln!("Error reseting cluster: {:?}", e);
+            Err(e.to_string())
+        }
+    }?;
+
     match crate::data::clusters::delete_cluster(id).await {
         Ok(()) => Ok(()),
         Err(e) => {
             eprintln!("Error deleting cluster: {:?}", e);
-            Err(e)
+            Err(e.to_string())
         }
     }
 }

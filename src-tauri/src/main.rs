@@ -10,6 +10,14 @@ mod paths;
 use tauri::Manager;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 fn main() {
+    let out_dir = std::env::current_exe()
+        .expect("Failed to get current executable path")
+        .parent()
+        .expect("Failed to get parent directory")
+        .to_str()
+        .expect("Failed to convert path to string")
+        .to_string();
+    println!("base_dir : {}", out_dir);
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
@@ -26,6 +34,8 @@ fn main() {
             commands::clusters::add_cluster,
             commands::clusters::delete_cluster,
             commands::clusters::update_cluster,
+            commands::clusters::install_cilium,
+            commands::clusters::enable_hubble,
             commands::ssh::ping_ssh,
         ])
         .run(tauri::generate_context!())
