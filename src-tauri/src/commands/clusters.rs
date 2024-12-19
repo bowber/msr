@@ -79,50 +79,6 @@ pub async fn get_cluster_config(cluster_id: i64) -> Result<String, String> {
     }
 }
 
-#[tauri::command]
-pub async fn install_cilium(app: tauri::AppHandle) -> Result<(), String> {
-    let sidecar_command = app
-        .shell()
-        .sidecar("cilium")
-        .expect("Cannot create cilium sidecar")
-        .arg("install")
-        .arg("--set kubeProxyReplacement=true")
-        .arg("--set gatewayAPI.enabled=true");
-    let out = sidecar_command
-        .output()
-        .await
-        .expect("Failed to run cilium install");
-    if !out.status.success() {
-        return Err(format!(
-            "Failed to install Cilium: {}",
-            String::from_utf8_lossy(&out.stderr)
-        )
-        .into());
-    }
-    Ok(())
-}
-
-#[tauri::command]
-pub async fn enable_hubble(app: tauri::AppHandle) -> Result<(), String> {
-    let sidecar_command = app
-        .shell()
-        .sidecar("cilium")
-        .expect("Cannot create cilium sidecar")
-        .args(&["hubble", "install"]);
-    let out = sidecar_command
-        .output()
-        .await
-        .expect("Failed to run cilium hubble install");
-    if !out.status.success() {
-        return Err(format!(
-            "Failed to install Hubble: {}",
-            String::from_utf8_lossy(&out.stderr)
-        )
-        .into());
-    }
-    Ok(())
-}
-
 pub async fn apply_cluster(cluster_id: i64, host_ids: &Vec<i64>) -> Result<(), String> {
     let hosts = match crate::data::hosts::get_hosts_by_ids(&host_ids).await {
         Ok(hosts) => hosts,

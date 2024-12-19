@@ -200,6 +200,7 @@ pub async fn reset_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
     let mut child = tokio::process::Command::new(crate::paths::K0SCTL_BINARY_PATH.get().unwrap())
         .arg("reset")
         .arg("--config")
+        .arg("-f")
         .arg("-")
         .stdin(std::process::Stdio::piped())
         .spawn()?;

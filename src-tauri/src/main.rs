@@ -34,8 +34,6 @@ fn main() {
             commands::clusters::add_cluster,
             commands::clusters::delete_cluster,
             commands::clusters::update_cluster,
-            commands::clusters::install_cilium,
-            commands::clusters::enable_hubble,
             commands::ssh::ping_ssh,
         ])
         .run(tauri::generate_context!())
