@@ -16,7 +16,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": ["bin/cilium/cilium", "bin/hubble/hubble"]
+    "externalBin": []
   },
   "productName": "MSR",
   "mainBinaryName": "MSR",

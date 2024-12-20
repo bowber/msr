@@ -201,6 +201,7 @@ pub async fn reset_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
         .arg("reset")
         .arg("--force")
         .arg("--config")
+        .arg("-f")
         .arg("-")
         .stdin(std::process::Stdio::piped())
         .spawn()?;
