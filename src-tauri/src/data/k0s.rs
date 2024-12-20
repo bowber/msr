@@ -199,6 +199,7 @@ pub async fn reset_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
     println!("reset_cluster YAML: \n{}", &yaml);
     let mut child = tokio::process::Command::new(crate::paths::K0SCTL_BINARY_PATH.get().unwrap())
         .arg("reset")
+        .arg("--force")
         .arg("--config")
         .arg("-")
         .stdin(std::process::Stdio::piped())
@@ -207,7 +208,7 @@ pub async fn reset_cluster(params: &K0SInitParams) -> Result<(), Box<dyn std::er
         let mut stdin = child.stdin.take().expect("Failed to open stdin");
         stdin.write(yaml.as_bytes()).await?;
     }
-    let output = match timeout(Duration::from_secs(1), child.wait_with_output()).await {
+    let output = match timeout(Duration::from_secs(100), child.wait_with_output()).await {
         Ok(Ok(output)) => output,
         Ok(Err(e)) => return Err(e.into()),
         Err(_) => return Err("Process timed out".into()),
